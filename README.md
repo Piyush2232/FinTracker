@@ -11,18 +11,18 @@
 [![UI](https://img.shields.io/badge/UI-Jetpack%20Compose%20(M3)-121316?style=flat-square&logo=jetpackcompose&logoColor=4285F4)](https://developer.android.com/jetpack/compose)
 [![Privacy](https://img.shields.io/badge/Privacy-100%25%20Offline%20%7C%20Zero%20Cloud-159A49?style=flat-square)](#overview)
 [![ML Engine](https://img.shields.io/badge/On--Device%20ML-Subword%20N--Gram%20%2B%20Naive%20Bayes%20(%3C0.25ms)-121316?style=flat-square)](#on-device-ml-classification-engine)
-[![Download APK](https://img.shields.io/badge/Download-FinTracker--debug.apk-159A49?style=flat-square&logo=android&logoColor=FFFFFF)](docs/downloads/FinTracker-debug.apk)
-[![License: MIT](https://img.shields.io/badge/License-MIT-C97D00?style=flat-square)](LICENSE)
+[![GitHub Releases](https://img.shields.io/badge/Releases-User%20%26%20Tester%20APKs-159A49?style=flat-square&logo=github&logoColor=FFFFFF)](../../releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-121316?style=flat-square)](LICENSE)
 
 *Automatically parses Indian Bank SMS alerts, Credit/Debit Card swipes, and NPCI UPI / UPI Lite notifications strictly on your device—rendering your financial pace through a calm, minimal concentric ring interface.*
 
-[Download APK](docs/downloads/FinTracker-debug.apk) •
+[Releases (User & Tester APKs)](../../releases) •
+[Project Report (PDF)](docs/FinTracker_Project_Report.pdf) •
 [GitHub Pages Site](docs/index.html) •
 [System Architecture](#system-architecture-flowchart) •
 [SMS & UPI Parsing Pipeline](#multi-stage-sms--upi-parsing-pipeline) •
-[On-Device ML Engine](#on-device-ml-classification-engine) •
 [Testing Suite](#testing--validation-suite) •
-[Getting Started](#getting-started)
+[Getting Started](#download-apks-releases--getting-started)
 
 </div>
 
@@ -290,9 +290,7 @@ FinTracker/
 ├── docs/                                       # GitHub Pages showcase & visual architecture assets
 │   ├── index.html                              # GitHub Pages landing site (enable Pages -> /docs)
 │   ├── fintracker-logo.png                     # Cyclic FIN_01 app mark
-│   ├── architecture-flowchart.svg              # Vector System Architecture Flowchart
-│   └── downloads/
-│       └── FinTracker-debug.apk                # Pre-built installable Android APK
+│   └── architecture-flowchart.svg              # Vector System Architecture Flowchart
 ├── scripts/
 │   └── train_quantize_indian_sms_model.py      # Offline vocabulary & subword n-gram quantization script
 ├── app/src/
@@ -320,19 +318,34 @@ FinTracker/
 
 ---
 
-## Download APK & Getting Started
+## Download APKs (Releases) & Getting Started
 
-### Option A: Install Pre-Built APK Directly
+### Option A: Download from GitHub Releases (User vs. Tester)
 
-Download the compiled APK directly from [`docs/downloads/FinTracker-debug.apk`](docs/downloads/FinTracker-debug.apk) (or via the **GitHub Pages** site in `docs/index.html`) and sideload it onto any Android 7.0+ (`API 24+`) device.
+Compiled APKs are published in the repository's **[Releases](../../releases)** tab (rather than checked into git history):
 
-### Option B: Build from Source
+| Build Variant | Target Audience | Testing Tools (`Simulate +3 SMS`, `Parser Lab`) | Release Asset |
+| :--- | :--- | :--- | :--- |
+| **User Build** (`user` / `release`) | End users on real phones | **Removed** (`ENABLE_TESTING_TOOLS = false`) | `FinTracker-user.apk` in **[Releases](../../releases)** |
+| **Tester Build** (`debug`) | QA, evaluators & emulators | **Included** (`ENABLE_TESTING_TOOLS = true`) | `FinTracker-tester-debug.apk` in **[Releases](../../releases)** |
+
+To automatically publish a new release with both APKs attached via GitHub Actions:
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+*(Or trigger **Actions → Android CI & GitHub Releases → Run workflow** directly in GitHub.)*
+
+### Option B: Build Locally from Source
 
 ```bash
 git clone https://github.com/<your-username>/FinTracker.git
 cd FinTracker
 
-# Assemble Debug APK
+# Assemble User Build APK (testing tools stripped)
+./gradlew :app:assembleUser
+
+# Assemble Tester Build APK (includes SMS Simulator & Parser Lab)
 ./gradlew :app:assembleDebug
 ```
 

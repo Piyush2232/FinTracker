@@ -45,14 +45,22 @@ android {
       isCrunchPngs = false
       isMinifyEnabled = false
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+      buildConfigField("boolean", "ENABLE_TESTING_TOOLS", "false")
       // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
       // AI Studio.
       signingConfig = signingConfigs.getByName("release")
     }
     debug {
+      buildConfigField("boolean", "ENABLE_TESTING_TOOLS", "true")
       // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
       // AI Studio.
       signingConfig = signingConfigs.getByName("debugConfig")
+    }
+    create("user") {
+      initWith(getByName("release"))
+      buildConfigField("boolean", "ENABLE_TESTING_TOOLS", "false")
+      signingConfig = signingConfigs.getByName("debugConfig")
+      matchingFallbacks += listOf("release")
     }
   }
   compileOptions {

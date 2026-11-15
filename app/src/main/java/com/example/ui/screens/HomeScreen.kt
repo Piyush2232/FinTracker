@@ -65,6 +65,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.BuildConfig
 import com.example.R
 import com.example.data.TransactionEntity
 import com.example.data.TransactionSource
@@ -321,29 +322,31 @@ fun HomeScreen(
                                     )
                                 }
 
-                                // One-tap emulator SMS simulator button
-                                Row(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(50))
-                                        .background(BreezeSurface2)
-                                        .border(1.dp, BreezeLine, RoundedCornerShape(50))
-                                        .testTag("simulate_sms_home_button")
-                                        .clickable(role = Role.Button) { onSimulateBankSms(3) }
-                                        .padding(horizontal = 14.dp, vertical = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Bolt,
-                                        contentDescription = null,
-                                        tint = BreezeSuccess,
-                                        modifier = Modifier.size(16.dp),
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = "Simulate +3 SMS",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = BreezeInk,
-                                    )
+                                if (BuildConfig.ENABLE_TESTING_TOOLS) {
+                                    // One-tap emulator SMS simulator button (Tester build only)
+                                    Row(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(50))
+                                            .background(BreezeSurface2)
+                                            .border(1.dp, BreezeLine, RoundedCornerShape(50))
+                                            .testTag("simulate_sms_home_button")
+                                            .clickable(role = Role.Button) { onSimulateBankSms(3) }
+                                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Bolt,
+                                            contentDescription = null,
+                                            tint = BreezeSuccess,
+                                            modifier = Modifier.size(16.dp),
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = "Simulate +3 SMS",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = BreezeInk,
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -379,25 +382,31 @@ fun HomeScreen(
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "SmsContentObserverService is watching content://sms for 'Debited', 'Spent', and 'INR' patterns.",
+                                    text = if (BuildConfig.ENABLE_TESTING_TOOLS) {
+                                        "SmsContentObserverService is watching content://sms for 'Debited', 'Spent', and 'INR' patterns."
+                                    } else {
+                                        "FinTracker is ready to automatically log Indian bank SMS and UPI debit alerts on-device."
+                                    },
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = BreezeInk2,
                                 )
-                                Spacer(modifier = Modifier.height(14.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .height(44.dp)
-                                        .clip(RoundedCornerShape(50))
-                                        .background(BreezePrimary)
-                                        .clickable(role = Role.Button) { onSimulateBankSms(3) }
-                                        .padding(horizontal = 18.dp),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Text(
-                                        text = "Send 3 Test Bank SMS Now",
-                                        style = MaterialTheme.typography.labelLarge,
-                                        color = BreezeBackground,
-                                    )
+                                if (BuildConfig.ENABLE_TESTING_TOOLS) {
+                                    Spacer(modifier = Modifier.height(14.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .height(44.dp)
+                                            .clip(RoundedCornerShape(50))
+                                            .background(BreezePrimary)
+                                            .clickable(role = Role.Button) { onSimulateBankSms(3) }
+                                            .padding(horizontal = 18.dp),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        Text(
+                                            text = "Send 3 Test Bank SMS Now",
+                                            style = MaterialTheme.typography.labelLarge,
+                                            color = BreezeBackground,
+                                        )
+                                    }
                                 }
                             }
                         }

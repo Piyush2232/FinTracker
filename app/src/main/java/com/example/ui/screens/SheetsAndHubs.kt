@@ -62,6 +62,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.BuildConfig
 import com.example.R
 import com.example.capture.SmsTransactionParser
 import com.example.domain.ExpenseCategory
@@ -223,21 +224,23 @@ fun MonthlyGoalOnboardingSheet(
                             )
                         }
                     }
-                    Box(
-                        modifier = Modifier
-                            .height(40.dp)
-                            .clip(RoundedCornerShape(50))
-                            .background(BreezeBackground)
-                            .border(1.dp, BreezeLine, RoundedCornerShape(50))
-                            .clickable(role = Role.Button, onClick = onOpenParserLab)
-                            .padding(horizontal = 14.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = "Test Parser Lab",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = BreezeInk,
-                        )
+                    if (BuildConfig.ENABLE_TESTING_TOOLS) {
+                        Box(
+                            modifier = Modifier
+                                .height(40.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(BreezeBackground)
+                                .border(1.dp, BreezeLine, RoundedCornerShape(50))
+                                .clickable(role = Role.Button, onClick = onOpenParserLab)
+                                .padding(horizontal = 14.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "Test Parser Lab",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = BreezeInk,
+                            )
+                        }
                     }
                 }
             }
@@ -611,24 +614,26 @@ fun SubtleAddCaptureSheet(
                         color = BreezeInk,
                     )
                 }
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(44.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(BreezeSurface2)
-                        .border(1.dp, BreezeLine, RoundedCornerShape(50))
-                        .clickable(role = Role.Button) {
-                            onDismiss()
-                            onOpenParserLab()
-                        },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = "Parser Lab",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = BreezeInk,
-                    )
+                if (BuildConfig.ENABLE_TESTING_TOOLS) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(BreezeSurface2)
+                            .border(1.dp, BreezeLine, RoundedCornerShape(50))
+                            .clickable(role = Role.Button) {
+                                onDismiss()
+                                onOpenParserLab()
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = "Parser Lab",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = BreezeInk,
+                        )
+                    }
                 }
             }
         }
@@ -694,12 +699,12 @@ fun ProfileAndParserLabScreen(
                     Spacer(modifier = Modifier.width(14.dp))
                     Column {
                         Text(
-                            text = "PROFILE & PRIVACY HUB",
+                            text = if (BuildConfig.ENABLE_TESTING_TOOLS) "PROFILE & TESTER LAB" else "PROFILE & PRIVACY HUB",
                             style = MaterialTheme.typography.labelSmall,
                             color = BreezeInk2,
                         )
                         Text(
-                            text = "FinTracker Local",
+                            text = if (BuildConfig.ENABLE_TESTING_TOOLS) "FinTracker Tester" else "FinTracker Local",
                             style = MaterialTheme.typography.headlineLarge,
                             color = BreezeInk,
                         )
@@ -800,7 +805,11 @@ fun ProfileAndParserLabScreen(
 
                     Spacer(modifier = Modifier.height(10.dp))
                     val scanSummary = when {
-                        !uiState.hasSmsPermission -> "SMS permission not granted yet (or use the Emulator SMS Simulator below)."
+                        !uiState.hasSmsPermission -> if (BuildConfig.ENABLE_TESTING_TOOLS) {
+                            "SMS permission not granted yet (or use the Emulator SMS Simulator below)."
+                        } else {
+                            "Grant SMS permission to automatically track Indian bank & UPI debit alerts."
+                        }
                         uiState.prefs.lastSmsScanTimestamp > 0L ->
                             "Last inbox scan: ${uiState.prefs.lastScanInspected} SMS inspected · ${uiState.prefs.lastScanMatched} matched · ${uiState.prefs.lastScanSkipped} OTP/promo skipped"
                         else -> "SMS permission active. Ready to scan ${uiState.monthTitle} inbox."
@@ -866,51 +875,54 @@ fun ProfileAndParserLabScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
-                    HorizontalDivider(thickness = 1.dp, color = BreezeLine)
-                    Spacer(modifier = Modifier.height(12.dp))
+                    if (BuildConfig.ENABLE_TESTING_TOOLS) {
+                        Spacer(modifier = Modifier.height(14.dp))
+                        HorizontalDivider(thickness = 1.dp, color = BreezeLine)
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                    Text(
-                        text = "EMULATOR LIVE SMS SIMULATOR",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = BreezeInk2,
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Send realistic Indian bank & UPI SMS alerts directly into SmsContentObserverService:",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = BreezeInk2,
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        listOf(1 to "+1 Bank SMS", 3 to "+3 Bank SMS", 5 to "+5 Bank SMS").forEach { (count, label) ->
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(42.dp)
-                                    .clip(RoundedCornerShape(50))
-                                    .background(BreezeSurface2)
-                                    .border(1.dp, BreezeLine, RoundedCornerShape(50))
-                                    .testTag("simulate_sms_${count}_button")
-                                    .clickable(role = Role.Button) { onSimulateSmsBatch(count) },
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    text = label,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = BreezeInk,
-                                )
+                        Text(
+                            text = "EMULATOR LIVE SMS SIMULATOR",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = BreezeInk2,
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Send realistic Indian bank & UPI SMS alerts directly into SmsContentObserverService:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = BreezeInk2,
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            listOf(1 to "+1 Bank SMS", 3 to "+3 Bank SMS", 5 to "+5 Bank SMS").forEach { (count, label) ->
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(42.dp)
+                                        .clip(RoundedCornerShape(50))
+                                        .background(BreezeSurface2)
+                                        .border(1.dp, BreezeLine, RoundedCornerShape(50))
+                                        .testTag("simulate_sms_${count}_button")
+                                        .clickable(role = Role.Button) { onSimulateSmsBatch(count) },
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = label,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = BreezeInk,
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
 
-            // Interactive SMS Parser Lab (Dry-Run Tester + Presets)
-            item {
+            // Interactive SMS Parser Lab (Dry-Run Tester + Presets - Tester build only)
+            if (BuildConfig.ENABLE_TESTING_TOOLS) {
+                item {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1085,6 +1097,7 @@ fun ProfileAndParserLabScreen(
                         }
                     }
                 }
+            }
             }
 
             // Monthly Goal & CSV Import + Exports

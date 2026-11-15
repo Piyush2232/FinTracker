@@ -244,7 +244,7 @@
         <a href="#architecture">System Architecture</a>
         <a href="#benchmarks">ML Benchmarks</a>
         <a href="#banks">Supported Formats</a>
-        <a class="btn-primary" href="downloads/FinTracker-debug.apk" download>Download APK</a>
+        <a id="nav-releases-btn" class="btn-primary" href="#releases">GitHub Releases</a>
       </nav>
     </div>
   </header>
@@ -259,10 +259,54 @@
         Automatically parses Indian Bank SMS alerts, Card swipes, and NPCI UPI / UPI Lite push notifications strictly on-device—powered by TRAI DLT filtering, Clause Semantic Scoping, and sub-millisecond offline ML.
       </p>
       <div class="hero-actions">
-        <a class="btn-primary" href="downloads/FinTracker-debug.apk" download>Download FinTracker APK</a>
-        <a class="btn-secondary" href="#architecture">Explore Architecture Flowchart</a>
+        <a id="user-apk-btn" class="btn-primary" href="#releases">Get User Build (Releases)</a>
+        <a id="tester-apk-btn" class="btn-secondary" href="#releases">Get Tester Build (Releases)</a>
+        <a class="btn-secondary" href="#architecture">System Architecture Flowchart</a>
+      </div>
+      <p style="font-size: 13px; margin-top: 14px;">
+        <strong>User Build (<code>FinTracker-user.apk</code>):</strong> Clean end-user experience with zero simulator/lab tools. &nbsp;|&nbsp;
+        <strong>Tester Build (<code>FinTracker-tester-debug.apk</code>):</strong> Includes Emulator SMS Simulator (+1/+3/+5) &amp; Indian Regex Parser Lab.
+      </p>
+    </section>
+
+    <section id="releases">
+      <h2 class="section-title">Releases &amp; Build Variants</h2>
+      <p class="section-sub">
+        Both APK variants are published automatically to the repository&rsquo;s <strong>GitHub Releases</strong> tab via GitHub Actions on every version tag (<code>v*</code>).
+      </p>
+      <div class="grid-3">
+        <div class="card">
+          <div class="metric-val green" style="font-size: 22px;">User Build</div>
+          <div class="metric-label"><code>FinTracker-user.apk</code> &bull; <code>ENABLE_TESTING_TOOLS = false</code>. Strips all SMS simulators and Parser Lab panels for everyday mobile use.</div>
+        </div>
+        <div class="card">
+          <div class="metric-val" style="font-size: 22px;">Tester Build</div>
+          <div class="metric-label"><code>FinTracker-tester-debug.apk</code> &bull; <code>ENABLE_TESTING_TOOLS = true</code>. Includes <strong>Simulate +3 SMS</strong> and the interactive <strong>Indian Regex Parser Lab</strong>.</div>
+        </div>
+        <div class="card">
+          <div class="metric-val" style="font-size: 22px;">Auto-Release CI</div>
+          <div class="metric-label">Push a tag (<code>git tag v1.0.0 &amp;&amp; git push --tags</code>) or run the GitHub Actions workflow to attach both APKs to <strong>Releases</strong>.</div>
+        </div>
       </div>
     </section>
+
+    <script>
+      (function () {
+        var host = window.location.hostname || "";
+        if (host.endsWith(".github.io")) {
+          var owner = host.split(".")[0];
+          var parts = window.location.pathname.split("/").filter(Boolean);
+          var repo = parts.length > 0 ? parts[0] : "";
+          if (owner && repo) {
+            var releasesUrl = "https://github.com/" + owner + "/" + repo + "/releases/latest";
+            ["nav-releases-btn", "user-apk-btn", "tester-apk-btn"].forEach(function (id) {
+              var el = document.getElementById(id);
+              if (el) el.href = releasesUrl;
+            });
+          }
+        }
+      })();
+    </script>
 
     <section id="architecture">
       <h2 class="section-title">System Architecture Flowchart</h2>

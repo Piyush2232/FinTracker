@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.BuildConfig
 import com.example.FinTrackerApp
 import com.example.capture.PaymentNotificationListenerService
 import com.example.capture.SmsContentObserverService
@@ -145,7 +146,11 @@ class FinTrackerViewModel(application: Application) : AndroidViewModel(applicati
         if (granted) {
             scanSmsInbox(silentIfEmpty = false)
         } else {
-            statusMessage.value = "SMS permission declined — use Simulate Bank SMS or Parser Lab to test."
+            statusMessage.value = if (BuildConfig.ENABLE_TESTING_TOOLS) {
+                "SMS permission declined — use Simulate Bank SMS or Parser Lab to test."
+            } else {
+                "SMS permission declined — enable SMS permission in Settings or add expenses manually via +."
+            }
         }
     }
 
@@ -158,7 +163,11 @@ class FinTrackerViewModel(application: Application) : AndroidViewModel(applicati
             isScanningSms.value = false
             if (!silentIfEmpty || report.newlyInsertedCount > 0) {
                 statusMessage.value = when {
-                    !report.permissionGranted -> "Grant SMS permission or tap 'Simulate SMS' to test live parsing."
+                    !report.permissionGranted -> if (BuildConfig.ENABLE_TESTING_TOOLS) {
+                        "Grant SMS permission or tap 'Simulate SMS' to test live parsing."
+                    } else {
+                        "Grant SMS permission in Android Settings to scan bank & UPI messages."
+                    }
                     report.newlyInsertedCount > 0 ->
                         "Captured ${report.newlyInsertedCount} new expense${if (report.newlyInsertedCount == 1) "" else "s"} from ${report.inspectedCount} SMS."
                     else ->
@@ -173,6 +182,7 @@ class FinTrackerViewModel(application: Application) : AndroidViewModel(applicati
      * and the regex parser so the user can test any number of incoming SMS messages on the emulator.
      */
     fun simulateIncomingBankSmsBatch(count: Int = 3) {
+        if (!BuildConfig.ENABLE_TESTING_TOOLS) return
         viewModelScope.launch {
             val validPresets = SmsTransactionParser.testPresets.filter { !it.isExpectedReject }
             var addedCount = 0
