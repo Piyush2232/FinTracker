@@ -12,14 +12,38 @@ data class IndianRegexMatchResult(
     val accountOrCardTail: String?,
     val referenceNumber: String?,
     val instrumentType: String,
+    val isValidTraiHeader: Boolean = false,
+    val scopedClauseCount: Int = 1,
     val rejectionReason: String? = null,
 )
 
 /**
  * Dedicated regex-based parser module engineered for Indian bank, credit card,
  * and NPCI UPI SMS alerts (HDFC, SBI, ICICI, Axis, Kotak, IDFC, PNB, BOB, GPay, PhonePe, Paytm).
+ * Incorporates TRAI DLT Commercial Header validation and Clause Semantic Scoping.
  */
 object IndianSmsRegexParser {
+
+    // TRAI DLT Commercial Header Regex (e.g., AD-HDFCBK, VM-ICICIB-S, JD-SBIUPI, AX-AXISBK)
+    private val traiHeaderRegex = Regex(
+        """^(?:[A-Z]{2}-[A-Z0-9]{3,8}(?:-[A-Z])?|[A-Z]{4,10})$""",
+        RegexOption.IGNORE_CASE,
+    )
+
+    fun isTraiCommercialHeader(senderAddress: String): Boolean {
+        val clean = senderAddress.trim()
+        if (clean.isEmpty()) return false
+        return traiHeaderRegex.matches(clean)
+    }
+
+    /**
+     * Splits compound Indian bank SMS messages (e.g. "ICICI Acct XX123 debited for Rs 1,899; ZUDIO credited")
+     * into semantic clauses so counterparty "credited" clauses do not mask the primary "debited" clause.
+     */
+    fun scopeClauses(normalizedMessage: String): List<String> =
+        normalizedMessage.split(Regex("""(?i)(?<!\b(?:no|rs|dr|mr|ms|ac|avl|avbl))[;.]\s+|\s+-\s+"""))
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
 
     // 1. Security / OTP / Non-Expense Exclusion Regexes
     private val otpExclusionRegex = Regex(
@@ -181,6 +205,7 @@ object IndianSmsRegexParser {
         val accountMask = accountMaskRegex.find(normalized)?.groupValues?.getOrNull(1)
         val refNo = upiRefRegex.find(normalized)?.groupValues?.getOrNull(1)
         val instrument = detectInstrument(normalized.lowercase(Locale.ENGLISH))
+        val clauses = scopeClauses(normalized)
 
         return IndianRegexMatchResult(
             isFinancialDebit = true,
@@ -192,6 +217,8 @@ object IndianSmsRegexParser {
             accountOrCardTail = accountMask,
             referenceNumber = refNo,
             instrumentType = instrument,
+            isValidTraiHeader = isTraiCommercialHeader(senderAddress),
+            scopedClauseCount = clauses.size,
             rejectionReason = null,
         )
     }

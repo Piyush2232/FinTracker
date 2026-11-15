@@ -20,6 +20,8 @@ class SmsParserAndMlTest {
         val sms = "INR 280.00 spent on Axis Bank Card no. XX9012 at CHAI POINT on 15-11-26. Ref 6319881122"
         val res = IndianSmsRegexParser.parse(sms, "AX-AXISBK")
         assertTrue(res.isFinancialDebit)
+        assertTrue(res.isValidTraiHeader)
+        assertEquals(2, res.scopedClauseCount)
         assertEquals("spent", res.matchedDebitKeyword?.lowercase())
         assertEquals("INR", res.matchedCurrencySymbol)
         assertEquals(280.0, res.amountInr ?: 0.0, 0.01)
@@ -27,6 +29,14 @@ class SmsParserAndMlTest {
         assertEquals("XX9012", res.accountOrCardTail)
         assertEquals("6319881122", res.referenceNumber)
         assertEquals("CARD_SPENT_AT", res.matchedPatternName)
+    }
+
+    @Test
+    fun rejectsUpiLiteWalletTopUpToAvoidDoubleCounting() {
+        val topUpSms = "Rs.1,000.00 debited from HDFC Bank A/c *1234 for UPI Lite top-up on 15-11-26."
+        val res = IndianSmsRegexParser.parse(topUpSms, "AD-HDFCBK")
+        assertFalse(res.isFinancialDebit)
+        assertEquals("UPI_LITE_TOPUP_FILTER", res.matchedPatternName)
     }
 
     @Test

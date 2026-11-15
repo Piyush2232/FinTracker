@@ -3,6 +3,6 @@
     <item
         android:width="66dp"
         android:height="66dp"
-        android:drawable="@drawable/fintracker_icon_fg_1794770966110"
+        android:drawable="@drawable/fintracker_minimal_logo_1794774144403"
         android:gravity="center" />
 </layer-list>
