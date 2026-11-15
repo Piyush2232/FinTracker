@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/fintracker-logo.png" alt="FinTracker Cyclic Logo" width="128" height="128" />
+
 # FinTracker
 
 ### Privacy-First, Zero-Cloud Android Expense Tracker for Indian & Diaspora Financial Workflows
@@ -7,16 +9,18 @@
 [![Platform](https://img.shields.io/badge/Platform-Android%20(API%2024--36)-121316?style=flat-square&logo=android&logoColor=159A49)](https://developer.android.com)
 [![Language](https://img.shields.io/badge/Kotlin-2.2.10-121316?style=flat-square&logo=kotlin&logoColor=7F52FF)](https://kotlinlang.org)
 [![UI](https://img.shields.io/badge/UI-Jetpack%20Compose%20(M3)-121316?style=flat-square&logo=jetpackcompose&logoColor=4285F4)](https://developer.android.com/jetpack/compose)
-[![Privacy](https://img.shields.io/badge/Privacy-100%25%20Offline%20%7C%20Zero%20Cloud-159A49?style=flat-square)](#zero-cloud-privacy-architecture)
+[![Privacy](https://img.shields.io/badge/Privacy-100%25%20Offline%20%7C%20Zero%20Cloud-159A49?style=flat-square)](#overview)
 [![ML Engine](https://img.shields.io/badge/On--Device%20ML-Subword%20N--Gram%20%2B%20Naive%20Bayes%20(%3C0.25ms)-121316?style=flat-square)](#on-device-ml-classification-engine)
+[![Download APK](https://img.shields.io/badge/Download-FinTracker--debug.apk-159A49?style=flat-square&logo=android&logoColor=FFFFFF)](docs/downloads/FinTracker-debug.apk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-C97D00?style=flat-square)](LICENSE)
 
 *Automatically parses Indian Bank SMS alerts, Credit/Debit Card swipes, and NPCI UPI / UPI Lite notifications strictly on your device—rendering your financial pace through a calm, minimal concentric ring interface.*
 
-[Key Features](#key-features) •
+[Download APK](docs/downloads/FinTracker-debug.apk) •
+[GitHub Pages Site](docs/index.html) •
+[System Architecture](#system-architecture-flowchart) •
 [SMS & UPI Parsing Pipeline](#multi-stage-sms--upi-parsing-pipeline) •
 [On-Device ML Engine](#on-device-ml-classification-engine) •
-[UI & UX Flow](#breeze-minimal-concentric-ui--ux) •
 [Testing Suite](#testing--validation-suite) •
 [Getting Started](#getting-started)
 
@@ -52,6 +56,107 @@ Unlike conventional finance apps that upload your personal SMS inbox to remote s
   - Test any bank SMS or OTP string in dry-run mode or fire **+1 / +3 / +5 simulated Indian bank SMS alerts** with one tap on an emulator.
 - **Native CSV & Multi-Page A4 PDF Exports**:
   - Zero-permission export via Android's Storage Access Framework (`CreateDocument`).
+
+---
+
+## System Architecture Flowchart
+
+FinTracker operates as a **strictly offline, reactive pipeline** from OS message capture to Jetpack Compose rendering:
+
+<p align="center">
+  <img src="docs/architecture-flowchart.svg" alt="FinTracker System Architecture Flowchart" width="100%" />
+</p>
+
+<details>
+<summary>Interactive Mermaid Flowchart (Click to expand)</summary>
+
+```mermaid
+flowchart TB
+    %% Capture Layer
+    subgraph Capture["1. On-Device Capture & Ingestion Layer"]
+        direction LR
+        OBS["SmsContentObserverService<br/>(ContentObserver on content://sms)"]
+        BRC["SmsBroadcastReceiver<br/>(SMS_RECEIVED Intent)"]
+        SCN["SmsInboxScanner<br/>(ContentResolver Sync)"]
+        NLS["PaymentNotificationListenerService<br/>(GPay, PhonePe, Paytm, UPI Lite)"]
+        SIM["Emulator Batch Simulator &<br/>Manual '+' Entry"]
+    end
+
+    %% Deterministic Parsing Layer
+    subgraph Parser["2. Deterministic Indian Financial Regex Engine"]
+        direction TB
+        DLT["TRAI DLT Header Gate<br/>(AD-HDFCBK, VM-ICICIB, JD-SBIUPI)"]
+        SPAM{"Spam / OTP /<br/>UPI Lite Top-Up /<br/>Failed Debit?"}
+        DROP["Discard Silently<br/>(Increment Blocked Counter)"]
+        CLAUSE["Clause Semantic Scoping<br/>(Isolate User Debit vs Counterparty Credit)"]
+        REGEX["IndianSmsRegexParser<br/>(7 Named Merchant/VPA Rules +<br/>INR / Rs. / ₹ + UTR Extractor)"]
+    end
+
+    %% Offline ML Layer
+    subgraph ML["3. Sub-Millisecond Offline ML Engine (< 0.25 ms)"]
+        direction TB
+        TOKEN["VPA Suffix Stripper & Compound Tokenizer<br/>(@okaxis, @ybl, @oksbi → root handle)"]
+        NB["DiasporaMlClassifier<br/>(Subword 3-Gram Jaccard +<br/>Multinomial Naive Bayes)"]
+        LEARN["Online User-Correction Reinforcement<br/>(ml_token_weights Table)"]
+    end
+
+    %% Persistence & Dedup Layer
+    subgraph Data["4. Local-Only Persistence & Deduplication (Zero Internet)"]
+        direction LR
+        DEDUP["Cross-Channel SHA-256 Deduplicator<br/>(Amount | NormalizedMerchant | 3-Min Window)"]
+        ROOM[("Room SQLite<br/>AppDatabase")]
+        DSTORE[("DataStore<br/>Monthly Goal & Streak Prefs")]
+        REPO["FinTrackerRepository<br/>(Reactive Kotlin Flow)"]
+    end
+
+    %% UI & Export Layer
+    subgraph UI["5. Breeze Minimal Finance UI (Jetpack Compose + M3)"]
+        direction TB
+        VM["FinTrackerViewModel<br/>(StateFlow / collectAsStateWithLifecycle)"]
+        L1["Level 1: HomeScreen<br/>Concentric Spending Circle +<br/>Parallax Scroll → Recent Spending"]
+        L2["Level 2: CategoryBreakdownScreen<br/>Category Rings + 14-Day Pace & Distribution Charts"]
+        L3["Level 3: CategoryDetailScreen<br/>Curated Feed + One-Tap ML Recategorization"]
+        EXP["ExportManager<br/>(SAF CSV & Multi-Page A4 PDF)"]
+    end
+
+    %% Flow Connections
+    OBS & BRC & SCN & NLS --> DLT
+    DLT --> SPAM
+    SPAM -- "Yes (Blocked)" --> DROP
+    SPAM -- "No (Valid Debit)" --> CLAUSE
+    CLAUSE --> REGEX
+    REGEX --> TOKEN
+    TOKEN --> NB
+    NB --> DEDUP
+    SIM --> DEDUP
+    DEDUP --> ROOM
+    ROOM & DSTORE --> REPO
+    REPO --> VM
+    VM --> L1
+    L1 -- "Tap Concentric Circle" --> L2
+    L2 -- "Tap Category Ring" --> L3
+    L3 -- "Recategorize Merchant" --> LEARN
+    LEARN -. "Boosts Token Weights" .-> NB
+    LEARN --> ROOM
+    L2 & L3 --> EXP
+
+    %% Styling
+    classDef captureNode fill:#F3F5F7,stroke:#121316,stroke-width:1px,color:#121316
+    classDef parserNode fill:#FFFFFF,stroke:#121316,stroke-width:1px,color:#121316
+    classDef mlNode fill:#EEF7F1,stroke:#159A49,stroke-width:1.5px,color:#121316
+    classDef dropNode fill:#FDF2F2,stroke:#C83232,stroke-width:1px,color:#121316
+    classDef dataNode fill:#F3F5F7,stroke:#121316,stroke-width:1.5px,color:#121316
+    classDef uiNode fill:#FFFFFF,stroke:#121316,stroke-width:1px,color:#121316
+
+    class OBS,BRC,SCN,NLS,SIM captureNode
+    class DLT,SPAM,CLAUSE,REGEX parserNode
+    class DROP dropNode
+    class TOKEN,NB,LEARN mlNode
+    class DEDUP,ROOM,DSTORE,REPO dataNode
+    class VM,L1,L2,L3,EXP uiNode
+```
+
+</details>
 
 ---
 
@@ -182,6 +287,12 @@ The repository includes a comprehensive JVM & Robolectric test suite (`app/src/t
 FinTracker/
 ├── .github/workflows/
 │   └── android-ci.yml                          # GitHub Actions CI (Unit/Robolectric tests + APK build)
+├── docs/                                       # GitHub Pages showcase & visual architecture assets
+│   ├── index.html                              # GitHub Pages landing site (enable Pages -> /docs)
+│   ├── fintracker-logo.png                     # Cyclic FIN_01 app mark
+│   ├── architecture-flowchart.svg              # Vector System Architecture Flowchart
+│   └── downloads/
+│       └── FinTracker-debug.apk                # Pre-built installable Android APK
 ├── scripts/
 │   └── train_quantize_indian_sms_model.py      # Offline vocabulary & subword n-gram quantization script
 ├── app/src/
@@ -209,9 +320,13 @@ FinTracker/
 
 ---
 
-## Getting Started
+## Download APK & Getting Started
 
-### 1. Clone & Build
+### Option A: Install Pre-Built APK Directly
+
+Download the compiled APK directly from [`docs/downloads/FinTracker-debug.apk`](docs/downloads/FinTracker-debug.apk) (or via the **GitHub Pages** site in `docs/index.html`) and sideload it onto any Android 7.0+ (`API 24+`) device.
+
+### Option B: Build from Source
 
 ```bash
 git clone https://github.com/<your-username>/FinTracker.git
@@ -221,13 +336,17 @@ cd FinTracker
 ./gradlew :app:assembleDebug
 ```
 
-### 2. Run the Automated Test Suite
+### Run the Automated Test Suite
 
 ```bash
 ./gradlew :app:testDebugUnitTest
 ```
 
-### 3. Inspect / Export Quantized ML Vocabulary Metadata (Optional)
+### Enable GitHub Pages (Optional)
+
+Go to **Repository Settings → Pages → Build and deployment → Branch (`main`) / Folder (`/docs`)** to publish the interactive FinTracker showcase & direct APK download page (`docs/index.html`).
+
+### Inspect / Export Quantized ML Vocabulary Metadata (Optional)
 
 ```bash
 python3 scripts/train_quantize_indian_sms_model.py

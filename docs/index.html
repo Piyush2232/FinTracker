@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinTracker — Privacy-First Indian SMS &amp; UPI Expense Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F9F9FC;
+      --surface: #FFFFFF;
+      --surface-2: #F3F5F7;
+      --ink: #121316;
+      --ink-2: #5D5E61;
+      --line: #E2E4E7;
+      --emerald: #159A49;
+      --emerald-soft: #EEF7F1;
+      --amber: #C97D00;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    header {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .brand img {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--ink-2);
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .nav-links a:hover { color: var(--ink); }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--ink);
+      color: #FFFFFF !important;
+      padding: 12px 22px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    .btn-primary:hover { transform: translateY(-1px); opacity: 0.92; }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      padding: 12px 22px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+    }
+    .hero {
+      padding: 64px 0 48px;
+      text-align: center;
+    }
+    .hero-logo {
+      width: 112px;
+      height: 112px;
+      border-radius: 26px;
+      box-shadow: 0 12px 32px -6px rgba(18, 19, 22, 0.12);
+      margin-bottom: 24px;
+    }
+    .pill-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--emerald-soft);
+      color: var(--emerald);
+      border: 1px solid #B7E2C6;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      max-width: 780px;
+      margin: 0 auto 16px;
+    }
+    .hero p {
+      color: var(--ink-2);
+      font-size: 17px;
+      max-width: 680px;
+      margin: 0 auto 28px;
+    }
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    section { padding: 48px 0; }
+    .section-title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .section-sub {
+      color: var(--ink-2);
+      margin-bottom: 28px;
+      font-size: 15px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 20px -2px rgba(18, 19, 22, 0.04);
+    }
+    .flowchart-wrap {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 16px;
+      box-shadow: 0 6px 28px -4px rgba(18, 19, 22, 0.05);
+      overflow-x: auto;
+    }
+    .flowchart-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+      min-width: 720px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .metric-val {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .metric-val.green { color: var(--emerald); }
+    .metric-label { font-size: 13px; color: var(--ink-2); font-weight: 500; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+    th, td {
+      padding: 14px 18px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+    }
+    th {
+      background: var(--surface-2);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--ink-2);
+    }
+    tr:last-child td { border-bottom: none; }
+    code {
+      background: var(--surface-2);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 12.5px;
+    }
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 36px 0;
+      color: var(--ink-2);
+      font-size: 13px;
+      text-align: center;
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a class="brand" href="#">
+        <img src="fintracker-logo.png" alt="FinTracker Logo" />
+        <span>FinTracker</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#architecture">System Architecture</a>
+        <a href="#benchmarks">ML Benchmarks</a>
+        <a href="#banks">Supported Formats</a>
+        <a class="btn-primary" href="downloads/FinTracker-debug.apk" download>Download APK</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <img class="hero-logo" src="fintracker-logo.png" alt="FinTracker Cyclic Logo" />
+      <br />
+      <span class="pill-tag">Zero Cloud Dependency • 100% On-Device Android</span>
+      <h1>Calm, Private Expense Tracking for Indian SMS &amp; UPI</h1>
+      <p>
+        Automatically parses Indian Bank SMS alerts, Card swipes, and NPCI UPI / UPI Lite push notifications strictly on-device—powered by TRAI DLT filtering, Clause Semantic Scoping, and sub-millisecond offline ML.
+      </p>
+      <div class="hero-actions">
+        <a class="btn-primary" href="downloads/FinTracker-debug.apk" download>Download FinTracker APK</a>
+        <a class="btn-secondary" href="#architecture">Explore Architecture Flowchart</a>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <h2 class="section-title">System Architecture Flowchart</h2>
+      <p class="section-sub">
+        End-to-end local data flow from OS message capture and deterministic Indian regex parsing to sub-millisecond offline ML and Breeze Minimal Compose UI.
+      </p>
+      <div class="flowchart-wrap">
+        <img src="architecture-flowchart.svg" alt="FinTracker System Architecture Flowchart" />
+      </div>
+    </section>
+
+    <section id="benchmarks">
+      <h2 class="section-title">On-Device ML &amp; Privacy Benchmarks</h2>
+      <p class="section-sub">Built with pure Kotlin and Room SQLite—zero network permissions in AndroidManifest.xml.</p>
+      <div class="grid-3">
+        <div class="card">
+          <div class="metric-val green">&lt; 0.25 ms</div>
+          <div class="metric-label">Single-message inference latency via Subword Trigram + Multinomial Naive Bayes</div>
+        </div>
+        <div class="card">
+          <div class="metric-val">100%</div>
+          <div class="metric-label">OTP, MPIN, loan promo, and UPI Lite wallet top-up spam rejection rate</div>
+        </div>
+        <div class="card">
+          <div class="metric-val">&lt; 45 KB</div>
+          <div class="metric-label">Total ML vocabulary &amp; Room token weight footprint with zero native .so overhead</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="banks">
+      <h2 class="section-title">Supported Indian Banks, Cards &amp; UPI Apps</h2>
+      <p class="section-sub">Validates TRAI DLT commercial headers and scopes multi-clause alerts accurately.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Channel</th>
+            <th>Institutions / Apps</th>
+            <th>Handled Pattern</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Private &amp; PSU Bank SMS</strong></td>
+            <td>HDFC, ICICI, SBI, Axis, Kotak, IDFC First, PNB, BOB</td>
+            <td><code>Amt Sent Rs.485.00 From HDFC Bank A/C *1234 To SWIGGY</code></td>
+          </tr>
+          <tr>
+            <td><strong>Compound Semicolon SMS</strong></td>
+            <td>ICICI, Kotak, Yes Bank</td>
+            <td><code>ICICI Acct XX123 debited for Rs 1,899; ZUDIO RETAIL credited</code></td>
+          </tr>
+          <tr>
+            <td><strong>Bare-Amount PSU UPI SMS</strong></td>
+            <td>SBI, Canara, Union Bank</td>
+            <td><code>A/C X5421 debited by 640.50 trf to BLINKIT GROCERIES</code></td>
+          </tr>
+          <tr>
+            <td><strong>Credit &amp; Debit Cards</strong></td>
+            <td>HDFC, ICICI, Axis, SBI Cards, Amex</td>
+            <td><code>INR 280.00 spent on Axis Bank Card no. XX9012 at CHAI POINT</code></td>
+          </tr>
+          <tr>
+            <td><strong>UPI App Notifications</strong></td>
+            <td>GPay, PhonePe, Paytm, BHIM, CRED, Amazon Pay, Super.money, Navi</td>
+            <td><code>Paid ₹2,450.00 to patelbrothers@okaxis via Google Pay</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      FinTracker • MIT License • 100% Local &amp; Open-Source Android Expense Tracker
+    </div>
+  </footer>
+</body>
+</html>
