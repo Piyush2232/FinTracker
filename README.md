@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/fintracker-logo.png" alt="FinTracker Cyclic Logo" width="128" height="128" />
+<img src="docs/fintracker-logo.png" alt="FinTracker Logo" width="128" height="128" />
 
 # FinTracker
 
@@ -8,23 +8,20 @@
 
 [![Platform](https://img.shields.io/badge/Platform-Android%20(API%2024--36)-121316?style=flat-square&logo=android&logoColor=159A49)](https://developer.android.com)
 [![Language](https://img.shields.io/badge/Kotlin-2.2.10-121316?style=flat-square&logo=kotlin&logoColor=7F52FF)](https://kotlinlang.org)
-[![UI](https://img.shields.io/badge/UI-Jetpack%20Compose%20(M3)-121316?style=flat-square&logo=jetpackcompose&logoColor=4285F4)](https://developer.android.com/jetpack/compose)
 [![Privacy](https://img.shields.io/badge/Privacy-100%25%20Offline%20%7C%20Zero%20Cloud-159A49?style=flat-square)](#overview)
 [![ML Engine](https://img.shields.io/badge/On--Device%20ML-Subword%20N--Gram%20%2B%20Naive%20Bayes%20(%3C0.25ms)-121316?style=flat-square)](#on-device-ml-classification-engine)
-[![User Build APK](https://img.shields.io/badge/User%20APK-FinTracker--user.apk%20(12MB)-159A49?style=flat-square&logo=android&logoColor=FFFFFF)](releases/FinTracker-user.apk)
-[![Tester Build APK](https://img.shields.io/badge/Tester%20APK-FinTracker--tester--debug.apk%20(18MB)-C97D00?style=flat-square&logo=android&logoColor=FFFFFF)](releases/FinTracker-tester-debug.apk)
-[![GitHub Releases](https://img.shields.io/badge/GitHub-Releases-121316?style=flat-square&logo=github&logoColor=FFFFFF)](../../releases)
+[![GitHub Releases](https://img.shields.io/badge/Releases-User%20%26%20Tester%20APKs-159A49?style=flat-square&logo=github&logoColor=FFFFFF)](../../releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-121316?style=flat-square)](LICENSE)
 
-*Automatically parses Indian Bank SMS alerts, Credit/Debit Card swipes, and NPCI UPI / UPI Lite notifications strictly on your device—rendering your financial pace through a calm, minimal concentric ring interface.*
+*Automatically captures, filters, and classifies Indian Bank SMS alerts, Credit/Debit Card swipes, and NPCI UPI / UPI Lite notifications strictly on-device with zero network permissions.*
 
-[Download User APK](releases/FinTracker-user.apk) •
-[Download Tester APK](releases/FinTracker-tester-debug.apk) •
-[GitHub Releases](../../releases) •
+[GitHub Releases (User & Tester APKs)](../../releases) •
 [Project Report (PDF)](docs/FinTracker_Project_Report.pdf) •
 [System Architecture](#system-architecture-flowchart) •
 [SMS & UPI Parsing Pipeline](#multi-stage-sms--upi-parsing-pipeline) •
-[Testing Suite](#testing--validation-suite)
+[On-Device ML Engine](#on-device-ml-classification-engine) •
+[Testing Suite](#testing--validation-suite) •
+[Getting Started](#download-apks-releases--getting-started)
 
 </div>
 
@@ -34,7 +31,7 @@
 
 **FinTracker** is an open-source, privacy-first Android expense tracker purpose-built for **Indian financial workflows** (UPI, UPI Lite, IMPS/NEFT, Credit/Debit Cards, and Bank SMS alerts) as well as **Indian diaspora spending**.
 
-Unlike conventional finance apps that upload your personal SMS inbox to remote servers or rely on heavy cloud LLMs, FinTracker declares **zero internet permissions** in `AndroidManifest.xml`. Every transaction is captured, filtered, parsed, classified, and stored **100% locally on-device** in sub-millisecond latency.
+Unlike conventional finance apps that upload personal SMS inboxes to remote servers or rely on cloud LLMs, FinTracker declares **zero internet permissions** in `AndroidManifest.xml`. Every transaction is captured, filtered, parsed, classified, deduplicated, and stored **100% locally on-device** in sub-millisecond latency.
 
 ---
 
@@ -45,17 +42,14 @@ Unlike conventional finance apps that upload your personal SMS inbox to remote s
   - All transactions, budgets, and learned merchant weights remain in an on-device **Room SQLite** database.
 - **On-Device Subword N-Gram & Multinomial Naive Bayes ML (`< 0.25 ms` Inference)**:
   - Pure-Kotlin offline classifier combining FastText-inspired character trigram Jaccard similarity with TF-IDF Multinomial Naive Bayes log-likelihood scoring.
-  - Pre-seeded with **300+ Indian & diaspora merchant priors** across 8 categories, plus **online weight reinforcement** whenever you recategorize a transaction.
+  - Pre-seeded with **300+ Indian & diaspora merchant priors** across 8 categories, plus **online weight reinforcement** stored in SQLite whenever a merchant category is updated.
 - **Smart Indian SMS & UPI Notification Parsing**:
   - Real-time background `ContentObserver` service (`SmsContentObserverService`) watching `content://sms` + live `SMS_RECEIVED` broadcast receiver + historical inbox scanner.
   - Companion `PaymentNotificationListenerService` for **small-value UPI & UPI Lite** transactions where banks skip sending SMS alerts.
   - **TRAI DLT Header Validation**, **Clause Semantic Scoping**, and deterministic filters that block OTP security codes, pre-approved loan spam, failed/reversed debits, and UPI Lite top-up double counting.
-- **Breeze Minimal Concentric Spending UI**:
-  - **Level 1 (Main Screen)**: Uncluttered white canvas with **only** the Concentric Spending Circle and top-right Streak & Profile pills (zero footer). Scroll down for a smooth parallax transition into **Recent Spending**.
-  - **Level 2 (Categorical Spending)**: Tap the concentric circle to inspect per-category progress rings, safe daily spend pace, and native Compose **Visual Reports**.
-  - **Level 3 (Curated Category Feed)**: Tap any category (*e.g., Food & Dining*) for a full-screen curated feed with source filter chips and one-tap ML recategorization.
-- **Built-In Indian Regex SMS Parser Lab & Emulator Batch Simulator**:
-  - Test any bank SMS or OTP string in dry-run mode or fire **+1 / +3 / +5 simulated Indian bank SMS alerts** with one tap on an emulator.
+- **Dual Build Architecture (`User` vs. `Tester` APK)**:
+  - **User Build (`FinTracker-user.apk`)**: Production build with all synthetic SMS simulators and parser lab tools stripped at compile time (`BuildConfig.ENABLE_TESTING_TOOLS = false`).
+  - **Tester Build (`FinTracker-tester-debug.apk`)**: Evaluator and QA build with the built-in Indian Regex SMS Parser Lab and multi-message batch simulator (`BuildConfig.ENABLE_TESTING_TOOLS = true`).
 - **Native CSV & Multi-Page A4 PDF Exports**:
   - Zero-permission export via Android's Storage Access Framework (`CreateDocument`).
 
@@ -63,7 +57,7 @@ Unlike conventional finance apps that upload your personal SMS inbox to remote s
 
 ## System Architecture Flowchart
 
-FinTracker operates as a **strictly offline, reactive pipeline** from OS message capture to Jetpack Compose rendering:
+FinTracker operates as a **strictly offline, reactive data pipeline** from OS message capture to local Room SQLite persistence and document export:
 
 <p align="center">
   <img src="docs/architecture-flowchart.svg" alt="FinTracker System Architecture Flowchart" width="100%" />
@@ -81,7 +75,7 @@ flowchart TB
         BRC["SmsBroadcastReceiver<br/>(SMS_RECEIVED Intent)"]
         SCN["SmsInboxScanner<br/>(ContentResolver Sync)"]
         NLS["PaymentNotificationListenerService<br/>(GPay, PhonePe, Paytm, UPI Lite)"]
-        SIM["Emulator Batch Simulator &<br/>Manual '+' Entry"]
+        CSV["CSV Statement Importer &<br/>Tester Batch Simulator"]
     end
 
     %% Deterministic Parsing Layer
@@ -99,25 +93,16 @@ flowchart TB
         direction TB
         TOKEN["VPA Suffix Stripper & Compound Tokenizer<br/>(@okaxis, @ybl, @oksbi → root handle)"]
         NB["DiasporaMlClassifier<br/>(Subword 3-Gram Jaccard +<br/>Multinomial Naive Bayes)"]
-        LEARN["Online User-Correction Reinforcement<br/>(ml_token_weights Table)"]
+        LEARN["Online Weight Reinforcement<br/>(ml_token_weights Table)"]
     end
 
     %% Persistence & Dedup Layer
-    subgraph Data["4. Local-Only Persistence & Deduplication (Zero Internet)"]
+    subgraph Data["4. Local-Only Persistence, Deduplication & Export (Zero Internet)"]
         direction LR
         DEDUP["Cross-Channel SHA-256 Deduplicator<br/>(Amount | NormalizedMerchant | 3-Min Window)"]
         ROOM[("Room SQLite<br/>AppDatabase")]
-        DSTORE[("DataStore<br/>Monthly Goal & Streak Prefs")]
+        DSTORE[("DataStore<br/>Preferences")]
         REPO["FinTrackerRepository<br/>(Reactive Kotlin Flow)"]
-    end
-
-    %% UI & Export Layer
-    subgraph UI["5. Breeze Minimal Finance UI (Jetpack Compose + M3)"]
-        direction TB
-        VM["FinTrackerViewModel<br/>(StateFlow / collectAsStateWithLifecycle)"]
-        L1["Level 1: HomeScreen<br/>Concentric Spending Circle +<br/>Parallax Scroll → Recent Spending"]
-        L2["Level 2: CategoryBreakdownScreen<br/>Category Rings + 14-Day Pace & Distribution Charts"]
-        L3["Level 3: CategoryDetailScreen<br/>Curated Feed + One-Tap ML Recategorization"]
         EXP["ExportManager<br/>(SAF CSV & Multi-Page A4 PDF)"]
     end
 
@@ -130,32 +115,12 @@ flowchart TB
     REGEX --> TOKEN
     TOKEN --> NB
     NB --> DEDUP
-    SIM --> DEDUP
+    CSV --> DEDUP
     DEDUP --> ROOM
     ROOM & DSTORE --> REPO
-    REPO --> VM
-    VM --> L1
-    L1 -- "Tap Concentric Circle" --> L2
-    L2 -- "Tap Category Ring" --> L3
-    L3 -- "Recategorize Merchant" --> LEARN
+    REPO --> EXP
     LEARN -. "Boosts Token Weights" .-> NB
     LEARN --> ROOM
-    L2 & L3 --> EXP
-
-    %% Styling
-    classDef captureNode fill:#F3F5F7,stroke:#121316,stroke-width:1px,color:#121316
-    classDef parserNode fill:#FFFFFF,stroke:#121316,stroke-width:1px,color:#121316
-    classDef mlNode fill:#EEF7F1,stroke:#159A49,stroke-width:1.5px,color:#121316
-    classDef dropNode fill:#FDF2F2,stroke:#C83232,stroke-width:1px,color:#121316
-    classDef dataNode fill:#F3F5F7,stroke:#121316,stroke-width:1.5px,color:#121316
-    classDef uiNode fill:#FFFFFF,stroke:#121316,stroke-width:1px,color:#121316
-
-    class OBS,BRC,SCN,NLS,SIM captureNode
-    class DLT,SPAM,CLAUSE,REGEX parserNode
-    class DROP dropNode
-    class TOKEN,NB,LEARN mlNode
-    class DEDUP,ROOM,DSTORE,REPO dataNode
-    class VM,L1,L2,L3,EXP uiNode
 ```
 
 </details>
@@ -208,7 +173,7 @@ FinTracker processes every incoming message or notification through a determinis
 │  Stage 6: Cross-Channel SHA-256 Deduplication & Room Persistence             │
 │  • Hashes (FormattedAmount | NormalizedMerchant | 3-Minute Window)           │
 │  • Prevents duplicate entries when both Bank SMS + GPay Notification fire    │
-└──────────────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────────────┬───────────────────────────────────────┘
 ```
 
 ### Supported Indian Bank & UPI Formats
@@ -232,8 +197,8 @@ FinTracker uses a zero-dependency, pure-Kotlin classification engine (`DiasporaM
    - Generates adjacent compound bigrams (`"patel brothers"` → `"patel"`, `"brothers"`, `"patelbrothers"`).
 2. **Subword Character Trigram Fallback**:
    - When a bank truncates or typos a merchant string (e.g., `SWIGGYIN` or `BLINKITGROC`), character 3-gram Jaccard similarity matches against the closest Indian merchant prior without requiring brittle exact string matches.
-3. **Online User-Correction Learning**:
-   - Reassigning a transaction's category in the UI immediately boosts those merchant tokens in Room's `ml_token_weights` table, achieving **100% personalized accuracy** on repeat merchants.
+3. **Online Weight Reinforcement**:
+   - Updating a merchant's category immediately boosts those merchant tokens in Room's `ml_token_weights` table, achieving **100% personalized accuracy** on repeat merchants.
 
 ### Engine Benchmarks
 
@@ -246,40 +211,19 @@ FinTracker uses a zero-dependency, pure-Kotlin classification engine (`DiasporaM
 
 ---
 
-## Breeze Minimal Concentric UI & UX
-
-FinTracker adheres to the **Breeze Minimal Finance** design system (`Plus Jakarta Sans` typography with tabular `tnum` numerals, `#FFFFFF` / `#F3F5F7` recessed surfaces, `1.dp` `#E2E4E7` hairline borders, and `#121316` primary ink):
-
-1. **Main Screen (`HomeScreen.kt`)**:
-   - Displays **only** the animated **Concentric Spending Circle** in the center and the **Streak** + **Profile** pills in the top-right header (zero bottom navigation bar).
-   - **Scroll-Down Transition**: Scrolling down applies a smooth parallax scale/alpha transition (`graphicsLayer`) to the concentric circle and reveals the **Recent Spending** feed with spring physics (`animateItem`).
-2. **Level 2 — Categorical Spending (`CategoryBreakdownScreen.kt`)**:
-   - Clicking the concentric circle transitions to the full category breakdown with mini progress rings, remaining budget vs. safe daily spend (`₹/day`), a **14-Day Daily Spending Pace Chart**, and a **Category Distribution Bar**.
-3. **Level 3 — Curated Category View (`CategoryDetailScreen.kt`)**:
-   - Clicking any category (e.g., *Food & Dining*) opens a dedicated full-screen view with category limit controls, top merchant pills, source filter chips, and one-tap ML recategorization.
-
----
-
 ## Testing & Validation Suite
 
-The repository includes a comprehensive JVM & Robolectric test suite (`app/src/test/java/com/example/`):
+The repository includes an automated JVM & Robolectric test suite (`app/src/test/java/com/example/`):
 
 - **`SmsParserAndMlTest.kt`**:
   - **Indian Regex Extraction**: Validates verb (`Debited`, `Spent`, `Paid`), currency (`INR`, `Rs.`, `₹`), merchant, account mask (`XX9012`), and UPI reference ID extraction.
   - **Clause Semantic Scoping**: Verifies compound semicolon SMS alerts (`ICICI ... debited ...; ZUDIO RETAIL credited`) are scoped as expenses rather than deposits.
   - **Bank & Diaspora Coverage**: Tests HDFC UPI (`Swiggy`), ICICI (`Zudio`), SBI (`Blinkit`), Axis Card (`Chai Point`), and Google Pay VPA (`patelbrothers@okaxis`).
   - **Spam & OTP Blocking**: Asserts rejection of OTP codes, pre-approved loan spam, failed UPI alerts, and incoming NEFT credits.
-  - **Online ML Learning**: Verifies that user category corrections persist and override subsequent predictions for unseen local merchants.
+  - **Online ML Learning**: Verifies that category weight reinforcement persists and overrides subsequent predictions for unseen local merchants.
   - **Indian Numbering Formatter**: Verifies `3-then-2` Indian digit grouping (`₹1,24,500`).
 - **`ExampleRobolectricTest.kt`**:
-  - End-to-end **Robolectric Compose UI test** verifying first-launch monthly goal onboarding, scrolling down on the Home screen to reveal **Recent Spending**, and drilling down from the **Concentric Spending Circle → Categorical Spending → Food & Dining Curated View**.
-
-### Testing Live on an Emulator (No ADB Required)
-
-1. **Home Screen One-Tap Batch Simulator**:
-   - Scroll down on the Home screen to **Recent Spending** and tap **`Simulate +3 SMS`** to fire 3 realistic Indian bank SMS alerts directly through `SmsContentObserverService`.
-2. **Profile & Indian Regex SMS Parser Lab**:
-   - Tap the **Profile** button (top-right) to view live `ContentObserver` telemetry (`Watching content://sms`), trigger **`+1 / +3 / +5 Bank SMS`** batches, or paste custom SMS text in the **Indian Regex SMS Parser Lab**.
+  - Automated **Robolectric integration test** verifying monthly budget persistence, `SmsContentObserverService` batch ingestion, and category ledger aggregation.
 
 ---
 
@@ -288,13 +232,10 @@ The repository includes a comprehensive JVM & Robolectric test suite (`app/src/t
 ```text
 FinTracker/
 ├── .github/workflows/
-│   └── android-ci.yml                          # GitHub Actions CI (Unit/Robolectric tests + APK build)
-├── releases/                                   # Pre-built APKs (also auto-published to GitHub Releases)
-│   ├── FinTracker-user.apk                     # User Build (12 MB — testing tools removed)
-│   └── FinTracker-tester-debug.apk             # Tester Build (18 MB — SMS Simulator & Parser Lab)
-├── docs/                                       # GitHub Pages showcase, Architecture SVG & Report PDF
-│   ├── index.html                              # GitHub Pages landing site (enable Pages -> /docs)
-│   ├── fintracker-logo.png                     # Cyclic FIN_01 app mark
+│   └── android-ci.yml                          # GitHub Actions CI & Automated Releases publisher
+├── docs/                                       # Architecture flowchart, Project Report & release payload
+│   ├── index.html                              # GitHub Pages technical overview
+│   ├── fintracker-logo.png                     # FinTracker mark
 │   ├── architecture-flowchart.svg              # Vector System Architecture Flowchart
 │   └── FinTracker_Project_Report.pdf           # 22-Page B.Tech CSE PBL-2 Project Report
 ├── scripts/
@@ -313,11 +254,10 @@ FinTracker/
 │   │   │   └── DiasporaMlClassifier.kt         # Subword trigram + Multinomial Naive Bayes engine
 │   │   ├── data/                               # Room SQLite entities, DAOs, DataStore & Repository
 │   │   ├── domain/                             # ExpenseCategory enum & Indian ₹ formatter
-│   │   ├── export/                             # RFC-4180 CSV & multi-page A4 PdfDocument exporter
-│   │   └── ui/                                 # Breeze Minimal Compose screens, rings & charts
+│   │   └── export/                             # RFC-4180 CSV & multi-page A4 PdfDocument exporter
 │   └── test/java/com/example/
 │       ├── SmsParserAndMlTest.kt               # Regex, clause scoping, spam filter & ML unit tests
-│       └── ExampleRobolectricTest.kt           # Robolectric Compose CUJ navigation & scroll tests
+│       └── ExampleRobolectricTest.kt           # Robolectric integration & ingestion tests
 ├── LICENSE                                     # MIT License
 └── README.md
 ```
@@ -326,14 +266,14 @@ FinTracker/
 
 ## Download APKs (Releases) & Getting Started
 
-### Option A: Download Pre-Built APKs (`releases/` & GitHub Releases)
+### Option A: Download from GitHub Releases (`User` vs. `Tester` Build)
 
-Both compiled APKs are included directly in [`releases/`](releases/) **and** are automatically published to your repository's **[GitHub Releases](../../releases)** tab (`v1.0.0`) on every push to `main`/`master`:
+Both compiled Android APKs and the Project Report PDF are published to the **[GitHub Releases](../../releases)** tab:
 
-| Build Variant | Target Audience | Testing Tools (`Simulate +3 SMS`, `Parser Lab`) | Direct Download |
+| Build Variant | Target Audience | Testing Tools (`Simulate +3 SMS`, `Parser Lab`) | Release Asset in [Releases](../../releases) |
 | :--- | :--- | :--- | :--- |
-| **User Build** (`user` / `release`) | End users on real phones | **Removed** (`ENABLE_TESTING_TOOLS = false`) | [`releases/FinTracker-user.apk`](releases/FinTracker-user.apk) (`12 MB`) |
-| **Tester Build** (`debug`) | QA, evaluators & emulators | **Included** (`ENABLE_TESTING_TOOLS = true`) | [`releases/FinTracker-tester-debug.apk`](releases/FinTracker-tester-debug.apk) (`18 MB`) |
+| **User Build** (`user` / `release`) | End users on real phones | **Removed** (`ENABLE_TESTING_TOOLS = false`) | **`FinTracker-user.apk`** |
+| **Tester Build** (`debug`) | QA, evaluators & emulators | **Included** (`ENABLE_TESTING_TOOLS = true`) | **`FinTracker-tester-debug.apk`** |
 
 ### Option B: Build Locally from Source
 
@@ -353,10 +293,6 @@ cd FinTracker
 ```bash
 ./gradlew :app:testDebugUnitTest
 ```
-
-### Enable GitHub Pages (Optional)
-
-Go to **Repository Settings → Pages → Build and deployment → Branch (`main`) / Folder (`/docs`)** to publish the interactive FinTracker showcase & direct APK download page (`docs/index.html`).
 
 ### Inspect / Export Quantized ML Vocabulary Metadata (Optional)
 

@@ -42,11 +42,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Sms
-import androidx.compose.material.icons.rounded.LocalFireDepartment
+import com.example.ui.theme.AppIcons
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -167,7 +165,7 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.LocalFireDepartment,
+                        imageVector = AppIcons.LocalFireDepartment,
                         contentDescription = stringResource(R.string.streak_cd),
                         tint = if (uiState.streakCount > 0) BreezeWarning else BreezeInk,
                         modifier = Modifier.size(18.dp),
@@ -335,7 +333,7 @@ fun HomeScreen(
                                         verticalAlignment = Alignment.CenterVertically,
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Outlined.Bolt,
+                                            imageVector = AppIcons.Bolt,
                                             contentDescription = null,
                                             tint = BreezeSuccess,
                                             modifier = Modifier.size(16.dp),
@@ -369,7 +367,7 @@ fun HomeScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                                 Icon(
-                                    imageVector = Icons.Outlined.Sms,
+                                    imageVector = AppIcons.Sms,
                                     contentDescription = null,
                                     tint = BreezeInk2,
                                     modifier = Modifier.size(26.dp),

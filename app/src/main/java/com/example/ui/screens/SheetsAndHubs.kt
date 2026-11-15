@@ -31,15 +31,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.Description
-import androidx.compose.material.icons.outlined.FileUpload
 import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.NotificationsActive
-import androidx.compose.material.icons.outlined.PictureAsPdf
-import androidx.compose.material.icons.outlined.Science
-import androidx.compose.material.icons.outlined.Sms
-import androidx.compose.material.icons.outlined.TableChart
-import androidx.compose.material.icons.rounded.LocalFireDepartment
+import com.example.ui.theme.AppIcons
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -181,7 +174,7 @@ fun MonthlyGoalOnboardingSheet(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Outlined.Sms,
+                        imageVector = AppIcons.Sms,
                         contentDescription = null,
                         tint = BreezeInk,
                         modifier = Modifier.size(18.dp),
@@ -294,7 +287,7 @@ fun StreakModalSheet(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.LocalFireDepartment,
+                        imageVector = AppIcons.LocalFireDepartment,
                         contentDescription = null,
                         tint = BreezeWarning,
                         modifier = Modifier.size(26.dp),
@@ -762,7 +755,7 @@ fun ProfileAndParserLabScreen(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
-                                imageVector = Icons.Outlined.Sms,
+                                imageVector = AppIcons.Sms,
                                 contentDescription = null,
                                 tint = BreezeInk,
                                 modifier = Modifier.size(20.dp),
@@ -860,7 +853,7 @@ fun ProfileAndParserLabScreen(
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
-                                    imageVector = Icons.Outlined.NotificationsActive,
+                                    imageVector = AppIcons.NotificationsActive,
                                     contentDescription = null,
                                     tint = if (uiState.isNotificationListenerEnabled) BreezeSuccess else BreezeInk,
                                     modifier = Modifier.size(16.dp),
@@ -933,7 +926,7 @@ fun ProfileAndParserLabScreen(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Outlined.Science,
+                            imageVector = AppIcons.Science,
                             contentDescription = null,
                             tint = BreezeInk,
                             modifier = Modifier.size(20.dp),
@@ -1118,7 +1111,7 @@ fun ProfileAndParserLabScreen(
                     )
 
                     ActionRowItem(
-                        icon = Icons.Outlined.Description,
+                        icon = AppIcons.Description,
                         title = "Monthly Budget Goal",
                         subtitle = if (uiState.hasMonthlyGoal) {
                             "${uiState.monthTitle}: ${InrFormatter.format(uiState.monthlyGoalInr)}"
@@ -1131,7 +1124,7 @@ fun ProfileAndParserLabScreen(
                     HorizontalDivider(thickness = 1.dp, color = BreezeLine)
 
                     ActionRowItem(
-                        icon = Icons.Outlined.FileUpload,
+                        icon = AppIcons.FileUpload,
                         title = "Import Bank / UPI Statement (CSV)",
                         subtitle = "Parse & auto-categorize CSV transactions locally",
                         onClick = onImportCsv,
@@ -1156,7 +1149,7 @@ fun ProfileAndParserLabScreen(
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
-                                    imageVector = Icons.Outlined.TableChart,
+                                    imageVector = AppIcons.TableChart,
                                     contentDescription = null,
                                     tint = BreezeInk,
                                     modifier = Modifier.size(18.dp),
@@ -1182,7 +1175,7 @@ fun ProfileAndParserLabScreen(
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
-                                    imageVector = Icons.Outlined.PictureAsPdf,
+                                    imageVector = AppIcons.PictureAsPdf,
                                     contentDescription = null,
                                     tint = BreezeBackground,
                                     modifier = Modifier.size(18.dp),

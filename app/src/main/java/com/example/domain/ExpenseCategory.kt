@@ -1,16 +1,10 @@
 package com.example.domain
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccountBalance
-import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.LocalGroceryStore
-import androidx.compose.material.icons.outlined.Movie
-import androidx.compose.material.icons.outlined.ReceiptLong
-import androidx.compose.material.icons.outlined.Restaurant
-import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.ui.theme.AppIcons
 import com.example.ui.theme.RingBills
 import com.example.ui.theme.RingEntertainment
 import com.example.ui.theme.RingFood
@@ -31,42 +25,42 @@ enum class ExpenseCategory(
         displayName = "Food & Dining",
         shortName = "Food",
         ringColor = RingFood,
-        icon = Icons.Outlined.Restaurant,
+        icon = AppIcons.Restaurant,
         defaultBudgetRatio = 0.22,
     ),
     GROCERIES_KIRANA(
         displayName = "Groceries & Kirana",
         shortName = "Groceries",
         ringColor = RingGroceries,
-        icon = Icons.Outlined.LocalGroceryStore,
+        icon = AppIcons.LocalGroceryStore,
         defaultBudgetRatio = 0.16,
     ),
     TRANSPORT_TRAVEL(
         displayName = "Transport & Travel",
         shortName = "Transport",
         ringColor = RingTransport,
-        icon = Icons.Outlined.DirectionsCar,
+        icon = AppIcons.DirectionsCar,
         defaultBudgetRatio = 0.14,
     ),
     BILLS_UTILITIES(
         displayName = "Bills & Utilities",
         shortName = "Bills",
         ringColor = RingBills,
-        icon = Icons.Outlined.ReceiptLong,
+        icon = AppIcons.ReceiptLong,
         defaultBudgetRatio = 0.16,
     ),
     SHOPPING_LIFESTYLE(
         displayName = "Shopping & Lifestyle",
         shortName = "Shopping",
         ringColor = RingShopping,
-        icon = Icons.Outlined.ShoppingBag,
+        icon = AppIcons.ShoppingBag,
         defaultBudgetRatio = 0.12,
     ),
     REMITTANCE_TRANSFERS(
         displayName = "Remittance & Transfers",
         shortName = "Transfers",
         ringColor = RingRemittance,
-        icon = Icons.Outlined.AccountBalance,
+        icon = AppIcons.AccountBalance,
         defaultBudgetRatio = 0.10,
     ),
     HEALTH_WELLNESS(
@@ -80,7 +74,7 @@ enum class ExpenseCategory(
         displayName = "Entertainment & Media",
         shortName = "Media",
         ringColor = RingEntertainment,
-        icon = Icons.Outlined.Movie,
+        icon = AppIcons.Movie,
         defaultBudgetRatio = 0.05,
     );
 

@@ -30,9 +30,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.outlined.AutoAwesome
-import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material.icons.outlined.Tune
+import com.example.ui.theme.AppIcons
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -162,7 +160,7 @@ fun CategoryDetailScreen(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
-                                imageVector = Icons.Outlined.Tune,
+                                imageVector = AppIcons.Tune,
                                 contentDescription = "Adjust category limit",
                                 tint = BreezeInk,
                                 modifier = Modifier.size(16.dp),
@@ -429,7 +427,7 @@ fun CategoryDetailScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.DeleteOutline,
+                            imageVector = AppIcons.DeleteOutline,
                             contentDescription = "Delete transaction",
                             tint = BreezeDanger,
                             modifier = Modifier.size(20.dp),
@@ -457,7 +455,7 @@ fun CategoryDetailScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Outlined.AutoAwesome,
+                        imageVector = AppIcons.AutoAwesome,
                         contentDescription = null,
                         tint = BreezeSuccess,
                         modifier = Modifier.size(16.dp),
