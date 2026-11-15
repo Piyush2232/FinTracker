@@ -34,6 +34,10 @@ object IndianSmsRegexParser {
         """(?i)\b(failed|declined|unsuccessful|reversed|could\s+not\s+be\s+processed|cancelled|bounced|insufficient\s+funds|insufficient\s+balance)\b""",
     )
 
+    private val upiLiteTopUpExclusionRegex = Regex(
+        """(?i)\b(upi\s+lite\s+(?:top[\s\-]?up|load|loaded|added)|loaded\s+(?:to|into)\s+upi\s+lite)\b""",
+    )
+
     // 2. Indian Debit & Spend Action Pattern
     private val indianDebitVerbRegex = Regex(
         """(?i)\b(debited|spent|paid|amt\s+sent|sent|withdrawn|deducted|charged|purchase\s+of|txn\s+of|payment\s+of|trf\s+to|transferred)\b""",
@@ -124,6 +128,9 @@ object IndianSmsRegexParser {
         }
         if (failedTransactionRegex.containsMatchIn(normalized)) {
             return reject("FAILED_TXN_FILTER", "Failed, declined, or reversed transaction")
+        }
+        if (upiLiteTopUpExclusionRegex.containsMatchIn(normalized)) {
+            return reject("UPI_LITE_TOPUP_FILTER", "UPI Lite wallet top-up ignored to prevent double-counting")
         }
 
         val debitMatch = indianDebitVerbRegex.find(normalized)?.value
