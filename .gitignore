@@ -21,4 +21,5 @@ debug.keystore.base64
 *.jks
 *.keystore
 *.apk
+!releases/*.apk
 release-apks/

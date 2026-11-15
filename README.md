@@ -11,18 +11,20 @@
 [![UI](https://img.shields.io/badge/UI-Jetpack%20Compose%20(M3)-121316?style=flat-square&logo=jetpackcompose&logoColor=4285F4)](https://developer.android.com/jetpack/compose)
 [![Privacy](https://img.shields.io/badge/Privacy-100%25%20Offline%20%7C%20Zero%20Cloud-159A49?style=flat-square)](#overview)
 [![ML Engine](https://img.shields.io/badge/On--Device%20ML-Subword%20N--Gram%20%2B%20Naive%20Bayes%20(%3C0.25ms)-121316?style=flat-square)](#on-device-ml-classification-engine)
-[![GitHub Releases](https://img.shields.io/badge/Releases-User%20%26%20Tester%20APKs-159A49?style=flat-square&logo=github&logoColor=FFFFFF)](../../releases)
+[![User Build APK](https://img.shields.io/badge/User%20APK-FinTracker--user.apk%20(12MB)-159A49?style=flat-square&logo=android&logoColor=FFFFFF)](releases/FinTracker-user.apk)
+[![Tester Build APK](https://img.shields.io/badge/Tester%20APK-FinTracker--tester--debug.apk%20(18MB)-C97D00?style=flat-square&logo=android&logoColor=FFFFFF)](releases/FinTracker-tester-debug.apk)
+[![GitHub Releases](https://img.shields.io/badge/GitHub-Releases-121316?style=flat-square&logo=github&logoColor=FFFFFF)](../../releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-121316?style=flat-square)](LICENSE)
 
 *Automatically parses Indian Bank SMS alerts, Credit/Debit Card swipes, and NPCI UPI / UPI Lite notifications strictly on your device—rendering your financial pace through a calm, minimal concentric ring interface.*
 
-[Releases (User & Tester APKs)](../../releases) •
+[Download User APK](releases/FinTracker-user.apk) •
+[Download Tester APK](releases/FinTracker-tester-debug.apk) •
+[GitHub Releases](../../releases) •
 [Project Report (PDF)](docs/FinTracker_Project_Report.pdf) •
-[GitHub Pages Site](docs/index.html) •
 [System Architecture](#system-architecture-flowchart) •
 [SMS & UPI Parsing Pipeline](#multi-stage-sms--upi-parsing-pipeline) •
-[Testing Suite](#testing--validation-suite) •
-[Getting Started](#download-apks-releases--getting-started)
+[Testing Suite](#testing--validation-suite)
 
 </div>
 
@@ -287,10 +289,14 @@ The repository includes a comprehensive JVM & Robolectric test suite (`app/src/t
 FinTracker/
 ├── .github/workflows/
 │   └── android-ci.yml                          # GitHub Actions CI (Unit/Robolectric tests + APK build)
-├── docs/                                       # GitHub Pages showcase & visual architecture assets
+├── releases/                                   # Pre-built APKs (also auto-published to GitHub Releases)
+│   ├── FinTracker-user.apk                     # User Build (12 MB — testing tools removed)
+│   └── FinTracker-tester-debug.apk             # Tester Build (18 MB — SMS Simulator & Parser Lab)
+├── docs/                                       # GitHub Pages showcase, Architecture SVG & Report PDF
 │   ├── index.html                              # GitHub Pages landing site (enable Pages -> /docs)
 │   ├── fintracker-logo.png                     # Cyclic FIN_01 app mark
-│   └── architecture-flowchart.svg              # Vector System Architecture Flowchart
+│   ├── architecture-flowchart.svg              # Vector System Architecture Flowchart
+│   └── FinTracker_Project_Report.pdf           # 22-Page B.Tech CSE PBL-2 Project Report
 ├── scripts/
 │   └── train_quantize_indian_sms_model.py      # Offline vocabulary & subword n-gram quantization script
 ├── app/src/
@@ -320,21 +326,14 @@ FinTracker/
 
 ## Download APKs (Releases) & Getting Started
 
-### Option A: Download from GitHub Releases (User vs. Tester)
+### Option A: Download Pre-Built APKs (`releases/` & GitHub Releases)
 
-Compiled APKs are published in the repository's **[Releases](../../releases)** tab (rather than checked into git history):
+Both compiled APKs are included directly in [`releases/`](releases/) **and** are automatically published to your repository's **[GitHub Releases](../../releases)** tab (`v1.0.0`) on every push to `main`/`master`:
 
-| Build Variant | Target Audience | Testing Tools (`Simulate +3 SMS`, `Parser Lab`) | Release Asset |
+| Build Variant | Target Audience | Testing Tools (`Simulate +3 SMS`, `Parser Lab`) | Direct Download |
 | :--- | :--- | :--- | :--- |
-| **User Build** (`user` / `release`) | End users on real phones | **Removed** (`ENABLE_TESTING_TOOLS = false`) | `FinTracker-user.apk` in **[Releases](../../releases)** |
-| **Tester Build** (`debug`) | QA, evaluators & emulators | **Included** (`ENABLE_TESTING_TOOLS = true`) | `FinTracker-tester-debug.apk` in **[Releases](../../releases)** |
-
-To automatically publish a new release with both APKs attached via GitHub Actions:
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
-*(Or trigger **Actions → Android CI & GitHub Releases → Run workflow** directly in GitHub.)*
+| **User Build** (`user` / `release`) | End users on real phones | **Removed** (`ENABLE_TESTING_TOOLS = false`) | [`releases/FinTracker-user.apk`](releases/FinTracker-user.apk) (`12 MB`) |
+| **Tester Build** (`debug`) | QA, evaluators & emulators | **Included** (`ENABLE_TESTING_TOOLS = true`) | [`releases/FinTracker-tester-debug.apk`](releases/FinTracker-tester-debug.apk) (`18 MB`) |
 
 ### Option B: Build Locally from Source
 
