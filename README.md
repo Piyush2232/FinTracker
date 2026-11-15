@@ -1,307 +1,225 @@
-<div align="center">
-
-<img src="docs/fintracker-logo.png" alt="FinTracker Logo" width="128" height="128" />
-
 # FinTracker
 
-### Privacy-First, Zero-Cloud Android Expense Tracker for Indian & Diaspora Financial Workflows
+**Privacy-first, on-device ML-powered expense tracking for Indian financial SMS & UPI (UPI • Cards • Banks)**
 
-[![Platform](https://img.shields.io/badge/Platform-Android%20(API%2024--36)-121316?style=flat-square&logo=android&logoColor=159A49)](https://developer.android.com)
-[![Language](https://img.shields.io/badge/Kotlin-2.2.10-121316?style=flat-square&logo=kotlin&logoColor=7F52FF)](https://kotlinlang.org)
-[![Privacy](https://img.shields.io/badge/Privacy-100%25%20Offline%20%7C%20Zero%20Cloud-159A49?style=flat-square)](#overview)
-[![ML Engine](https://img.shields.io/badge/On--Device%20ML-Subword%20N--Gram%20%2B%20Naive%20Bayes%20(%3C0.25ms)-121316?style=flat-square)](#on-device-ml-classification-engine)
-[![GitHub Releases](https://img.shields.io/badge/Releases-User%20%26%20Tester%20APKs-159A49?style=flat-square&logo=github&logoColor=FFFFFF)](../../releases)
-[![License: MIT](https://img.shields.io/badge/License-MIT-121316?style=flat-square)](LICENSE)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.2.10-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![Release](https://img.shields.io/badge/release-v1.0.0-green)](../../releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Android%20API%2024%2B-brightgreen?logo=android)](https://developer.android.com)
+[![ML](https://img.shields.io/badge/ML-Subword%20N--Gram%20%28pure%20Kotlin%29-orange)](#on-device-subword-ml-engine)
+[![Offline](https://img.shields.io/badge/cloud-zero%20dependencies-blue)](#privacy--architecture)
+[![Tests](https://img.shields.io/badge/tests-12%20passed-brightgreen)](#testing)
 
-*Automatically captures, filters, and classifies Indian Bank SMS alerts, Credit/Debit Card swipes, and NPCI UPI / UPI Lite notifications strictly on-device with zero network permissions.*
-
-[GitHub Releases (User & Tester APKs)](../../releases) •
-[Project Report (PDF)](docs/FinTracker_Project_Report.pdf) •
-[System Architecture](#system-architecture-flowchart) •
-[SMS & UPI Parsing Pipeline](#multi-stage-sms--upi-parsing-pipeline) •
-[On-Device ML Engine](#on-device-ml-classification-engine) •
-[Testing Suite](#testing--validation-suite) •
-[Getting Started](#download-apks-releases--getting-started)
-
-</div>
+FinTracker is an Android application designed to parse Indian financial SMS messages and UPI push notifications to automatically categorize transactions. It utilizes an on-device Subword N-Gram and Multinomial Naive Bayes model written entirely in Kotlin to extract merchant, amount, and account details with zero cloud dependency and strict data privacy.
 
 ---
 
-## Overview
+## Table of Contents
 
-**FinTracker** is an open-source, privacy-first Android expense tracker purpose-built for **Indian financial workflows** (UPI, UPI Lite, IMPS/NEFT, Credit/Debit Cards, and Bank SMS alerts) as well as **Indian diaspora spending**.
+- [Why This Project](#why-this-project)
+- [Key Features](#key-features)
+- [Privacy & Architecture](#privacy--architecture)
+- [System Architecture](#system-architecture)
+- [On-Device Subword ML Engine](#on-device-subword-ml-engine)
+- [Technology Stack](#technology-stack)
+- [Getting Started](#getting-started)
+- [Build & Release](#build--release)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
 
-Unlike conventional finance apps that upload personal SMS inboxes to remote servers or rely on cloud LLMs, FinTracker declares **zero internet permissions** in `AndroidManifest.xml`. Every transaction is captured, filtered, parsed, classified, deduplicated, and stored **100% locally on-device** in sub-millisecond latency.
+---
+
+## Why This Project
+
+Traditional expense tracking applications often suffer from two major drawbacks: manual entry is tedious, and cloud-based automated tracking compromises user privacy. This project addresses both issues:
+
+- **Automated Tracking:** Transactions are captured automatically from financial SMS messages (UPI, credit/debit cards, IMPS/NEFT, bank alerts) and UPI app push notifications.
+- **Strict Data Privacy:** All parsing and ML inference operations occur on-device. `android.permission.INTERNET` is absent from `AndroidManifest.xml`—there is no backend, no analytics SDK, and no remote API.
+- **Localized for India:** The system is explicitly trained and tested against Indian banking formats (HDFC, SBI, ICICI, Axis, Kotak, PNB, Bank of Baroda) and NPCI UPI handles (`@okaxis`, `@ybl`, `@oksbi`, `@okhdfcbank`, `@okicici`, `@ibl`, `@paytm`).
 
 ---
 
 ## Key Features
 
-- **Zero Cloud Dependency & Strict Data Privacy**:
-  - No `android.permission.INTERNET` permission in the manifest—making network exfiltration technically impossible.
-  - All transactions, budgets, and learned merchant weights remain in an on-device **Room SQLite** database.
-- **On-Device Subword N-Gram & Multinomial Naive Bayes ML (`< 0.25 ms` Inference)**:
-  - Pure-Kotlin offline classifier combining FastText-inspired character trigram Jaccard similarity with TF-IDF Multinomial Naive Bayes log-likelihood scoring.
-  - Pre-seeded with **300+ Indian & diaspora merchant priors** across 8 categories, plus **online weight reinforcement** stored in SQLite whenever a merchant category is updated.
-- **Smart Indian SMS & UPI Notification Parsing**:
-  - Real-time background `ContentObserver` service (`SmsContentObserverService`) watching `content://sms` + live `SMS_RECEIVED` broadcast receiver + historical inbox scanner.
-  - Companion `PaymentNotificationListenerService` for **small-value UPI & UPI Lite** transactions where banks skip sending SMS alerts.
-  - **TRAI DLT Header Validation**, **Clause Semantic Scoping**, and deterministic filters that block OTP security codes, pre-approved loan spam, failed/reversed debits, and UPI Lite top-up double counting.
-- **Dual Build Architecture (`User` vs. `Tester` APK)**:
-  - **User Build (`FinTracker-user.apk`)**: Production build with all synthetic SMS simulators and parser lab tools stripped at compile time (`BuildConfig.ENABLE_TESTING_TOOLS = false`).
-  - **Tester Build (`FinTracker-tester-debug.apk`)**: Evaluator and QA build with the built-in Indian Regex SMS Parser Lab and multi-message batch simulator (`BuildConfig.ENABLE_TESTING_TOOLS = true`).
-- **Native CSV & Multi-Page A4 PDF Exports**:
-  - Zero-permission export via Android's Storage Access Framework (`CreateDocument`).
+### Intelligent Classification
+- **On-device Subword N-Gram & Naive Bayes classifier** (pure Kotlin): Classifies each extracted transaction across 8 spending categories (`Food`, `Groceries`, `Transport`, `Bills`, `Shopping`, `Transfers`, `Health`, `Entertainment`) in under **0.25 ms** per message.
+- **Compact Footprint:** Under **45 KB** in-memory vocabulary (`DiasporaVocabulary.kt`) backed by quantized subword n-gram priors (`scripts/train_quantize_indian_sms_model.py`).
+- Automated filtering of pre-approved loan advertisements, phishing attempts, UPI Lite wallet top-up loads, and OTP verification codes.
+
+### Native 7-Layer SMS & UPI Defense Shield
+- Background Kotlin capture services (`SmsContentObserverService.kt`, `SmsBroadcastReceiver.kt`, and `PaymentNotificationListenerService.kt`) that intercept incoming bank SMS and UPI app alerts natively on-device.
+- Verified TRAI DLT commercial sender-header checks (`AD-HDFCBK`, `VM-ICICIB`, `JD-SBIUPI`) restrict processing to genuine financial alerts.
+- Cross-channel SHA-256 deduplication (`Amount | NormalizedMerchant | 3-Minute Window`) prevents double-counting when both a bank SMS and a UPI push notification arrive for the same payment.
+
+### Deep Transaction Parsing
+- **Multi-tier regex pipeline (`IndianSmsRegexParser.kt`):** Incorporates **Clause Semantic Scoping** to isolate extraction to the relevant debit clause, preventing confusion between counterparty credits (`; ZUDIO RETAIL credited`), available account balances (`Avl Bal`), credit limits (`Avl Limit`), and transaction amounts.
+- **Indian Numbering & Bare-Amount Support:** Parses Indian comma grouping (`1,24,500.00`), standard currency prefixes (`₹`, `Rs.`, `INR`), and bare PSU bank amounts (`debited by 640.50`).
+- **Extensive Compatibility:** Supports 7 prioritized extraction rules covering HDFC, ICICI, SBI, Axis, Kotak, IDFC First, PNB, BOB, Google Pay, PhonePe, Paytm, BHIM, and CRED.
+
+### Adaptive Learning
+- **Custom merchant rules (`ml_token_weights`):** Users can reassign any merchant to a category (e.g., `"Kaveri Tiffin Centre"` to `"Food & Dining"`). The application immediately reinforces those merchant tokens in SQLite and applies them to future and historical entries.
+
+### Data Export & Reporting
+- Zero-permission local document export via Android's Storage Access Framework (`ExportManager.kt`), generating RFC-4180 CSV spreadsheets and multi-page A4 PDF financial reports.
+- Complete 22-page academic documentation included in [`docs/FinTracker_Project_Report.pdf`](docs/FinTracker_Project_Report.pdf).
 
 ---
 
-## System Architecture Flowchart
+## Privacy & Architecture
 
-FinTracker operates as a **strictly offline, reactive data pipeline** from OS message capture to local Room SQLite persistence and document export:
+> **User financial data is strictly confined to the local device.**
 
-<p align="center">
-  <img src="docs/architecture-flowchart.svg" alt="FinTracker System Architecture Flowchart" width="100%" />
-</p>
+| Property                   | Guarantee                                      |
+| -------------------------- | ---------------------------------------------- |
+| Internet permission        | None (`android.permission.INTERNET` omitted)   |
+| Cloud servers              | None                                           |
+| Remote APIs                | None                                           |
+| Native C++/Python binaries | None                                           |
+| Third-party analytics      | None                                           |
+| Storage                    | Local Room SQLite (`AppDatabase`) only         |
+| ML inference               | On-device pure Kotlin, `< 0.25 ms` per SMS     |
 
-<details>
-<summary>Interactive Mermaid Flowchart (Click to expand)</summary>
+The entire data pipeline—receipt, filtering, clause scoping, regex extraction, classification, deduplication, and storage—executes securely and locally on the user's device.
+
+---
+
+## System Architecture
 
 ```mermaid
-flowchart TB
-    %% Capture Layer
-    subgraph Capture["1. On-Device Capture & Ingestion Layer"]
-        direction LR
-        OBS["SmsContentObserverService<br/>(ContentObserver on content://sms)"]
-        BRC["SmsBroadcastReceiver<br/>(SMS_RECEIVED Intent)"]
-        SCN["SmsInboxScanner<br/>(ContentResolver Sync)"]
-        NLS["PaymentNotificationListenerService<br/>(GPay, PhonePe, Paytm, UPI Lite)"]
-        CSV["CSV Statement Importer &<br/>Tester Batch Simulator"]
-    end
-
-    %% Deterministic Parsing Layer
-    subgraph Parser["2. Deterministic Indian Financial Regex Engine"]
-        direction TB
-        DLT["TRAI DLT Header Gate<br/>(AD-HDFCBK, VM-ICICIB, JD-SBIUPI)"]
-        SPAM{"Spam / OTP /<br/>UPI Lite Top-Up /<br/>Failed Debit?"}
-        DROP["Discard Silently<br/>(Increment Blocked Counter)"]
-        CLAUSE["Clause Semantic Scoping<br/>(Isolate User Debit vs Counterparty Credit)"]
-        REGEX["IndianSmsRegexParser<br/>(7 Named Merchant/VPA Rules +<br/>INR / Rs. / ₹ + UTR Extractor)"]
-    end
-
-    %% Offline ML Layer
-    subgraph ML["3. Sub-Millisecond Offline ML Engine (< 0.25 ms)"]
-        direction TB
-        TOKEN["VPA Suffix Stripper & Compound Tokenizer<br/>(@okaxis, @ybl, @oksbi → root handle)"]
-        NB["DiasporaMlClassifier<br/>(Subword 3-Gram Jaccard +<br/>Multinomial Naive Bayes)"]
-        LEARN["Online Weight Reinforcement<br/>(ml_token_weights Table)"]
-    end
-
-    %% Persistence & Dedup Layer
-    subgraph Data["4. Local-Only Persistence, Deduplication & Export (Zero Internet)"]
-        direction LR
-        DEDUP["Cross-Channel SHA-256 Deduplicator<br/>(Amount | NormalizedMerchant | 3-Min Window)"]
-        ROOM[("Room SQLite<br/>AppDatabase")]
-        DSTORE[("DataStore<br/>Preferences")]
-        REPO["FinTrackerRepository<br/>(Reactive Kotlin Flow)"]
-        EXP["ExportManager<br/>(SAF CSV & Multi-Page A4 PDF)"]
-    end
-
-    %% Flow Connections
-    OBS & BRC & SCN & NLS --> DLT
-    DLT --> SPAM
-    SPAM -- "Yes (Blocked)" --> DROP
-    SPAM -- "No (Valid Debit)" --> CLAUSE
-    CLAUSE --> REGEX
-    REGEX --> TOKEN
-    TOKEN --> NB
-    NB --> DEDUP
-    CSV --> DEDUP
-    DEDUP --> ROOM
-    ROOM & DSTORE --> REPO
-    REPO --> EXP
-    LEARN -. "Boosts Token Weights" .-> NB
-    LEARN --> ROOM
-```
-
-</details>
-
----
-
-## Multi-Stage SMS & UPI Parsing Pipeline
-
-Indian bank SMS messages and UPI push notifications are notoriously noisy—combining multiple clauses (`"ICICI Acct XX123 debited for Rs 1,899; ZUDIO RETAIL credited"`), varying currency prefixes (`₹`, `Rs.`, `INR`, or bare `debited by 640.50`), and high volumes of OTP/loan spam.
-
-FinTracker processes every incoming message or notification through a deterministic **6-stage local pipeline**:
-
-```text
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  Stage 1: Capture Sources                                                    │
-│  • SmsContentObserverService (ContentObserver on content://sms)              │
-│  • SmsBroadcastReceiver (Telephony.Sms.Intents.SMS_RECEIVED_ACTION)          │
-│  • PaymentNotificationListenerService (GPay, PhonePe, Paytm, BHIM, CRED...)  │
-└──────────────────────────────────────┬───────────────────────────────────────┘
-                                       ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  Stage 2: TRAI DLT Header & Spam / OTP / UPI-Lite Exclusion Gate             │
-│  • Validates TRAI commercial headers (e.g., AD-HDFCBK, VM-ICICIB, JD-SBIUPI) │
-│  • Rejects OTPs, MPIN/CVV alerts, pre-approved loan promos & cashback spam   │
-│  • Rejects failed/declined/reversed alerts & UPI Lite wallet top-up loads    │
-└──────────────────────────────────────┬───────────────────────────────────────┘
-                                       ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  Stage 3: Clause Semantic Scoping & Debit Intent Verification                │
-│  • Splits compound messages at clause boundaries (; / . / - )                │
-│  • Scopes 'debited/spent/paid' to user's A/c while isolating counterparty    │
-│    'credited' clauses (preventing false deposit rejections on ICICI/SBI SMS) │
-└──────────────────────────────────────┬───────────────────────────────────────┘
-                                       ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  Stage 4: Named Indian Financial Regex Extraction (IndianSmsRegexParser)     │
-│  • Extracts ₹ / Rs. / INR amount (Indian comma grouping: 1,24,500.00)        │
-│  • Runs 7 prioritized merchant/VPA regex rules (UPI_TRF_TO, HDFC_SENT_TO,    │
-│    ICICI_SEMI_CREDITED, CARD_SPENT_AT, NPCI_VPA_HANDLE, UPI_SLASH_HANDLE)    │
-│  • Extracts Account/Card tail (XX1234) and 6–14 digit UPI Ref/UTR number     │
-└──────────────────────────────────────┬───────────────────────────────────────┘
-                                       ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  Stage 5: On-Device Subword N-Gram & Naive Bayes Classifier (< 0.25 ms)      │
-│  • Strips bank VPA suffixes (@okaxis, @ybl, @oksbi) while keeping handle     │
-│  • Scores exact priors + learned user rules + character 3-gram similarity    │
-└──────────────────────────────────────┬───────────────────────────────────────┘
-                                       ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  Stage 6: Cross-Channel SHA-256 Deduplication & Room Persistence             │
-│  • Hashes (FormattedAmount | NormalizedMerchant | 3-Minute Window)           │
-│  • Prevents duplicate entries when both Bank SMS + GPay Notification fire    │
-└──────────────────────────────────────┬───────────────────────────────────────┘
-```
-
-### Supported Indian Bank & UPI Formats
-
-| Source Type | Supported Institutions / Apps | Example Pattern Handled |
-| :--- | :--- | :--- |
-| **Private & PSU Bank SMS** | HDFC, ICICI, SBI, Axis, Kotak, IDFC First, PNB, BOB | `Amt Sent Rs.485.00 From HDFC Bank A/C *1234 To SWIGGY ON 15-11-26 Ref 6319284712` |
-| **Semicolon Counterparty SMS** | ICICI, Kotak, Yes Bank | `ICICI Bank Acct XX123 debited for Rs 1,899.00 on 15-Nov-26; ZUDIO RETAIL credited. UPI:431928` |
-| **Bare-Amount PSU UPI SMS** | SBI, Canara, Union Bank | `Dear UPI user A/C X5421 debited by 640.50 on date 15Nov26 trf to BLINKIT GROCERIES Refno 431982` |
-| **Credit & Debit Card Swipes** | Axis, HDFC, ICICI, SBI Cards, Amex | `INR 280.00 spent on Axis Bank Card no. XX9012 at CHAI POINT on 15-11-26. Avl Limit: INR 1,42,000` |
-| **UPI App Push Alerts & UPI Lite** | Google Pay, PhonePe, Paytm, BHIM, CRED, Amazon Pay, Super.money, Navi, Jupiter, Fi | `Paid ₹2,450.00 to patelbrothers@okaxis via Google Pay` |
-
----
-
-## On-Device ML Classification Engine
-
-FinTracker uses a zero-dependency, pure-Kotlin classification engine (`DiasporaMlClassifier.kt` + `DiasporaVocabulary.kt`) inspired by FastText subword n-grams and Multinomial Naive Bayes:
-
-1. **VPA & Compound Tokenization**:
-   - Strips NPCI bank routing suffixes (`@okaxis`, `@okhdfcbank`, `@okicici`, `@oksbi`, `@ybl`, `@ibl`, `@axl`, `@paytm`) so `patelbrothers@okaxis` cleanly tokenizes into `patelbrothers`.
-   - Generates adjacent compound bigrams (`"patel brothers"` → `"patel"`, `"brothers"`, `"patelbrothers"`).
-2. **Subword Character Trigram Fallback**:
-   - When a bank truncates or typos a merchant string (e.g., `SWIGGYIN` or `BLINKITGROC`), character 3-gram Jaccard similarity matches against the closest Indian merchant prior without requiring brittle exact string matches.
-3. **Online Weight Reinforcement**:
-   - Updating a merchant's category immediately boosts those merchant tokens in Room's `ml_token_weights` table, achieving **100% personalized accuracy** on repeat merchants.
-
-### Engine Benchmarks
-
-| Metric | Result | Notes |
-| :--- | :--- | :--- |
-| **Single-Message Inference Latency** | **`< 0.25 ms`** | Measured on JVM / Android ART (zero native `.so` overhead) |
-| **Memory & Storage Footprint** | **`< 45 KB`** | In-memory vocabulary + Room `ml_token_weights` table |
-| **OTP & Promotional Loan Spam Rejection** | **`100%`** | Deterministic regex gate prior to ML scoring |
-| **Categories Supported** | **8 Core Categories** | Food, Groceries/Kirana, Transport, Bills, Shopping, Transfers/Remittance, Health, Entertainment |
-
----
-
-## Testing & Validation Suite
-
-The repository includes an automated JVM & Robolectric test suite (`app/src/test/java/com/example/`):
-
-- **`SmsParserAndMlTest.kt`**:
-  - **Indian Regex Extraction**: Validates verb (`Debited`, `Spent`, `Paid`), currency (`INR`, `Rs.`, `₹`), merchant, account mask (`XX9012`), and UPI reference ID extraction.
-  - **Clause Semantic Scoping**: Verifies compound semicolon SMS alerts (`ICICI ... debited ...; ZUDIO RETAIL credited`) are scoped as expenses rather than deposits.
-  - **Bank & Diaspora Coverage**: Tests HDFC UPI (`Swiggy`), ICICI (`Zudio`), SBI (`Blinkit`), Axis Card (`Chai Point`), and Google Pay VPA (`patelbrothers@okaxis`).
-  - **Spam & OTP Blocking**: Asserts rejection of OTP codes, pre-approved loan spam, failed UPI alerts, and incoming NEFT credits.
-  - **Online ML Learning**: Verifies that category weight reinforcement persists and overrides subsequent predictions for unseen local merchants.
-  - **Indian Numbering Formatter**: Verifies `3-then-2` Indian digit grouping (`₹1,24,500`).
-- **`ExampleRobolectricTest.kt`**:
-  - Automated **Robolectric integration test** verifying monthly budget persistence, `SmsContentObserverService` batch ingestion, and category ledger aggregation.
-
----
-
-## Project Structure
-
-```text
-FinTracker/
-├── .github/workflows/
-│   └── android-ci.yml                          # GitHub Actions CI & Automated Releases publisher
-├── docs/                                       # Architecture flowchart, Project Report & release payload
-│   ├── index.html                              # GitHub Pages technical overview
-│   ├── fintracker-logo.png                     # FinTracker mark
-│   ├── architecture-flowchart.svg              # Vector System Architecture Flowchart
-│   └── FinTracker_Project_Report.pdf           # 22-Page B.Tech CSE PBL-2 Project Report
-├── scripts/
-│   └── train_quantize_indian_sms_model.py      # Offline vocabulary & subword n-gram quantization script
-├── app/src/
-│   ├── main/java/com/example/
-│   │   ├── capture/
-│   │   │   ├── IndianSmsRegexParser.kt         # TRAI header, clause scoping & 7 Indian regex rules
-│   │   │   ├── SmsTransactionParser.kt         # Parser facade, SHA-256 deduplication & 10 presets
-│   │   │   ├── SmsContentObserverService.kt    # Sticky Service with ContentObserver on content://sms
-│   │   │   ├── SmsBroadcastReceiver.kt         # Live SMS_RECEIVED broadcast receiver
-│   │   │   ├── SmsInboxScanner.kt              # Current-month inbox ContentResolver scanner
-│   │   │   └── PaymentNotificationListenerService.kt # GPay/PhonePe/Paytm/UPI Lite alert listener
-│   │   ├── ml/
-│   │   │   ├── DiasporaVocabulary.kt           # 300+ Indian & diaspora merchant priors
-│   │   │   └── DiasporaMlClassifier.kt         # Subword trigram + Multinomial Naive Bayes engine
-│   │   ├── data/                               # Room SQLite entities, DAOs, DataStore & Repository
-│   │   ├── domain/                             # ExpenseCategory enum & Indian ₹ formatter
-│   │   └── export/                             # RFC-4180 CSV & multi-page A4 PdfDocument exporter
-│   └── test/java/com/example/
-│       ├── SmsParserAndMlTest.kt               # Regex, clause scoping, spam filter & ML unit tests
-│       └── ExampleRobolectricTest.kt           # Robolectric integration & ingestion tests
-├── LICENSE                                     # MIT License
-└── README.md
+flowchart TD
+    A[Incoming SMS Broadcast / Inbox Sync / UPI Push] --> B[SmsContentObserverService & SmsBroadcastReceiver<br/>7-Layer Kotlin Defense Shield]
+    B -->|OTP / Promo / Loan Spam / UPI Lite Load| C[✗ Reject — Blocked Silently]
+    B -->|Valid Financial Alert| D[TRAI DLT Header Validator]
+    D --> E[Clause Semantic Scoper<br/>Isolates Debit Clause vs Avl Bal / Counterparty Credit]
+    E --> F[IndianSmsRegexParser<br/>7 Prioritized Merchant, Amount, Account & UTR Rules]
+    F --> G[DiasporaMlClassifier<br/>On-Device Subword 3-Gram + Naive Bayes ML]
+    G -->|Check Room SQLite User Rules| H{Custom Rule Found?}
+    H -->|Yes| I[Apply Reinforced User Category<br/>100% Confidence]
+    H -->|No| J[300+ Builtin Indian Priors<br/>+ Subword 3-Gram Jaccard]
+    I --> K[Cross-Channel SHA-256 Deduplicator<br/>3-Minute SMS + UPI Window]
+    J --> K
+    K --> L[(Local Room SQLite Database)]
+    L --> M[Real-Time Categorized Ledger]
+    L --> N[Category & Monthly Aggregations]
+    L --> O[SAF CSV & Multi-Page A4 PDF Export]
 ```
 
 ---
 
-## Download APKs (Releases) & Getting Started
+## On-Device Subword ML Engine
 
-### Option A: Download from GitHub Releases (`User` vs. `Tester` Build)
+A pure-Kotlin subword n-gram and Multinomial Naive Bayes implementation (`DiasporaMlClassifier.kt` + `DiasporaVocabulary.kt`) eliminating the need for Python, C++, or TensorFlow Lite runtime dependencies during inference and online training.
 
-Both compiled Android APKs and the Project Report PDF are published to the **[GitHub Releases](../../releases)** tab:
+| Specification      | Details                                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------------------ |
+| Target Categories  | `FOOD`, `GROCERIES`, `TRANSPORT`, `BILLS`, `SHOPPING`, `TRANSFERS`, `HEALTH`, `ENTERTAINMENT`    |
+| Feature extraction | VPA suffix stripping (`@okaxis`, `@ybl`), compound bigrams, 3-char subword n-gram Jaccard        |
+| Online learning    | Persistent token weight reinforcement in SQLite (`ml_token_weights` table)                       |
+| Vocabulary size    | **< 45 KB** (300+ Indian & diaspora merchant priors + uint8 quantization script)                 |
+| Inference latency  | **< 0.25 ms** per message                                                                        |
 
-| Build Variant | Target Audience | Testing Tools (`Simulate +3 SMS`, `Parser Lab`) | Release Asset in [Releases](../../releases) |
-| :--- | :--- | :--- | :--- |
-| **User Build** (`user` / `release`) | End users on real phones | **Removed** (`ENABLE_TESTING_TOOLS = false`) | **`FinTracker-user.apk`** |
-| **Tester Build** (`debug`) | QA, evaluators & emulators | **Included** (`ENABLE_TESTING_TOOLS = true`) | **`FinTracker-tester-debug.apk`** |
+**Why Subword N-Grams?** Character trigrams and VPA handle normalization render the classifier highly robust against bank-truncated merchant strings (e.g., `SWIGGYIN`, `BLINKITGROC`), concatenated UPI handles (`patelbrothers@okaxis`), and regional merchant names.
 
-### Option B: Build Locally from Source
+---
+
+## Technology Stack
+
+| Layer         | Technology                                                                                      |
+| ------------- | ----------------------------------------------------------------------------------------------- |
+| Platform      | Native Android (`minSdk 24`, `targetSdk 36`)                                                    |
+| Language      | Kotlin `2.2.10` (Coroutines & `StateFlow`)                                                      |
+| Database      | AndroidX Room SQLite `2.7.0` (`transactions`, `monthly_budgets`, `ml_token_weights`)            |
+| Preferences   | Jetpack DataStore Preferences `1.1.7`                                                           |
+| SMS & UPI     | `ContentObserver` (`content://sms`), `SMS_RECEIVED` BroadcastReceiver, `NotificationListenerService` |
+| ML Engine     | Custom pure-Kotlin Subword 3-Gram Jaccard + Multinomial Naive Bayes (`DiasporaMlClassifier.kt`) |
+| Document I/O  | Native `android.graphics.pdf.PdfDocument` + RFC-4180 CSV via Storage Access Framework           |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- **Android Studio** (Ladybug / Meerkat or newer) with **JDK 17**
+- **Android SDK** (API Level 24 or higher)
+- An Android device or emulator running **Android 7.0 (API 24)** or higher
+
+### Setup
 
 ```bash
-git clone https://github.com/<your-username>/FinTracker.git
+# 1. Clone the repository
+git clone https://github.com/spiyushprakash/FinTracker.git
 cd FinTracker
 
-# Assemble User Build APK (testing tools stripped)
-./gradlew :app:assembleUser
-
-# Assemble Tester Build APK (includes SMS Simulator & Parser Lab)
+# 2. Assemble the debug (Tester) APK
 ./gradlew :app:assembleDebug
+
+# 3. Assemble the production (User) APK
+./gradlew :app:assembleUser
 ```
 
-### Run the Automated Test Suite
+> **Note:** Upon initial launch on a device, grant SMS permission to allow the application to synchronize financial messages. In Android Studio, use **View → Tool Windows → Build Variants** to switch between `debug` (**Tester Build**) and `user` (**User Build**).
+
+---
+
+## Build & Release
+
+```bash
+./gradlew :app:assembleUser :app:assembleDebug
+```
+
+Pre-compiled APKs and the Project Report PDF are available directly in **[GitHub Releases](../../releases)**:
+
+| Target                        | Output / Release Asset                                                                 |
+| ----------------------------- | -------------------------------------------------------------------------------------- |
+| **User Build APK** (`user`)   | [`FinTracker-user.apk`](../../releases) (`ENABLE_TESTING_TOOLS = false` — production)  |
+| **Tester Build APK** (`debug`)| [`FinTracker-tester-debug.apk`](../../releases) (`ENABLE_TESTING_TOOLS = true` — QA)   |
+| **Project Report (PDF)**      | [`FinTracker_Project_Report.pdf`](docs/FinTracker_Project_Report.pdf)                  |
+
+- **`FinTracker-user.apk`**: Clean end-user binary with all synthetic SMS simulation triggers and parser lab tools removed at compile time.
+- **`FinTracker-tester-debug.apk`**: Evaluator/QA binary retaining the `+1 / +3 / +5 Bank SMS` batch simulator and the interactive **Indian Regex SMS Parser Lab**.
+
+---
+
+## Testing
+
+Execute the automated JVM and Robolectric test suite using the following command:
 
 ```bash
 ./gradlew :app:testDebugUnitTest
 ```
 
-### Inspect / Export Quantized ML Vocabulary Metadata (Optional)
+Expected output:
 
-```bash
-python3 scripts/train_quantize_indian_sms_model.py
+```text
+BUILD SUCCESSFUL
+12 tests completed, 0 failed
 ```
+
+Test coverage (`SmsParserAndMlTest.kt` and `ExampleRobolectricTest.kt`) includes: Indian regex extraction (`Debited`, `Spent`, `Paid`), Clause Semantic Scoping on compound semicolon alerts, TRAI header validation, OTP and promotional loan spam blocking, online ML token reinforcement, Indian `3-then-2` numbering formatters, and Robolectric batch SMS ingestion.
+
+---
+
+## Contributing
+
+Contributions are welcome. For significant architectural changes or new bank regex rules, please open an issue first for discussion.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feat/your-feature`)
+3. Commit your changes (`git commit -m 'feat: add bank regex rule'`)
+4. Push to the branch (`git push origin feat/your-feature`)
+5. Open a Pull Request (ensure `./gradlew :app:testDebugUnitTest` executes without errors)
 
 ---
 
 ## License
 
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for full details.
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for complete details.
+
+---
+
+<p align="center">
+  Developed for secure, private financial tracking.<br>
+  Please consider starring this repository if you find it beneficial.
+</p>
