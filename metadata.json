@@ -1,0 +1,6 @@
+{
+  "name": "FinTracker",
+  "description": "Privacy-first local expense and monthly budget tracker with automatic on-device SMS parsing, Indian diaspora ML categorization, concentric spending rings, visual reports, and CSV/PDF export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

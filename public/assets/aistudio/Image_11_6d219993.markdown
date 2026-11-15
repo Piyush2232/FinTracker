@@ -1,0 +1,229 @@
+---
+name: Breeze Minimal Finance
+colors:
+  surface: '#f9f9fc'
+  surface-dim: '#dadadc'
+  surface-bright: '#f9f9fc'
+  surface-container-lowest: '#ffffff'
+  surface-container-low: '#f3f3f6'
+  surface-container: '#eeeef0'
+  surface-container-high: '#e8e8ea'
+  surface-container-highest: '#e2e2e5'
+  on-surface: '#1a1c1e'
+  on-surface-variant: '#46464b'
+  inverse-surface: '#2f3133'
+  inverse-on-surface: '#f0f0f3'
+  outline: '#76777b'
+  outline-variant: '#c7c6cb'
+  surface-tint: '#5e5e62'
+  primary: '#000000'
+  on-primary: '#ffffff'
+  primary-container: '#1b1b1f'
+  on-primary-container: '#848387'
+  inverse-primary: '#c7c6ca'
+  secondary: '#5d5e61'
+  on-secondary: '#ffffff'
+  secondary-container: '#e0dfe3'
+  on-secondary-container: '#616265'
+  tertiary: '#000000'
+  on-tertiary: '#ffffff'
+  tertiary-container: '#1a1c1e'
+  on-tertiary-container: '#828487'
+  error: '#ba1a1a'
+  on-error: '#ffffff'
+  error-container: '#ffdad6'
+  on-error-container: '#93000a'
+  primary-fixed: '#e3e2e6'
+  primary-fixed-dim: '#c7c6ca'
+  on-primary-fixed: '#1b1b1f'
+  on-primary-fixed-variant: '#46464a'
+  secondary-fixed: '#e2e2e5'
+  secondary-fixed-dim: '#c6c6c9'
+  on-secondary-fixed: '#1a1c1e'
+  on-secondary-fixed-variant: '#45474a'
+  tertiary-fixed: '#e2e2e5'
+  tertiary-fixed-dim: '#c6c6c9'
+  on-tertiary-fixed: '#1a1c1e'
+  on-tertiary-fixed-variant: '#45474a'
+  background: '#f9f9fc'
+  on-background: '#1a1c1e'
+  surface-variant: '#e2e2e5'
+typography:
+  display-lg:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 40px
+    fontWeight: '700'
+    lineHeight: 48px
+    letterSpacing: -0.03em
+  display-md:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 32px
+    fontWeight: '700'
+    lineHeight: 40px
+    letterSpacing: -0.02em
+  headline-lg:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 24px
+    fontWeight: '600'
+    lineHeight: 32px
+    letterSpacing: -0.02em
+  headline-sm:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 20px
+    fontWeight: '600'
+    lineHeight: 28px
+    letterSpacing: -0.01em
+  title-md:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 16px
+    fontWeight: '600'
+    lineHeight: 24px
+    letterSpacing: -0.01em
+  body-lg:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 16px
+    fontWeight: '400'
+    lineHeight: 24px
+    letterSpacing: 0em
+  body-md:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 14px
+    fontWeight: '400'
+    lineHeight: 20px
+    letterSpacing: 0em
+  label-lg:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 14px
+    fontWeight: '600'
+    lineHeight: 20px
+    letterSpacing: 0.01em
+  label-md:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 12px
+    fontWeight: '500'
+    lineHeight: 16px
+    letterSpacing: 0.02em
+  label-sm:
+    fontFamily: Plus Jakarta Sans
+    fontSize: 11px
+    fontWeight: '600'
+    lineHeight: 14px
+    letterSpacing: 0.04em
+rounded:
+  sm: 0.5rem
+  DEFAULT: 1rem
+  md: 1.5rem
+  lg: 2rem
+  xl: 3rem
+  full: 9999px
+spacing:
+  gutter: 1rem
+  margin: 1.25rem
+  space-xs: 0.25rem
+  space-sm: 0.5rem
+  space-md: 1rem
+  space-lg: 1.5rem
+  space-xl: 2rem
+---
+
+## Brand & Style
+
+This design system delivers a calm, pristine, and effortless personal finance tracking experience designed specifically for mobile-first consumer interaction. Drawing from modern minimalism and tactile digital clarity, the interface relies on vast white breathing room, high-contrast structural text, and friendly geometric shapes to transform money management from an anxiety-inducing chore into an intuitive, lightweight routine.
+
+### Creative Tenets
+- **Airy Precision:** Clean canvases layered with featherweight structural lines rather than heavy boxes.
+- **Graphic Directness:** Deep monochromatic accents grounded by crisp, colorful telemetry rings and status nodes.
+- **Soft Touch Ergonomics:** High physical compliance through fully rounded pill controls and generous interactive hit-targets.
+- **Clarity Over Density:** Low cognitive load achieved by surfacing primary totals boldly while stepping metadata down to soft secondary tones.
+
+## Colors
+
+The palette employs a high-contrast monochrome foundation accented by purposeful semantic anchors. Contrast is deployed intentionally: deep slate inks convey finality and value, soft off-whites delineate ambient card regions, and hairline neutrals provide structure without visual clutter.
+
+### Palette Architecture
+- **Primary (`#121316`):** Key interactive buttons, prominent summaries, and primary active states. Content on top must strictly use `#FFFFFF`.
+- **Primary Soft (`#F1F2F5`):** Subdued pill backgrounds, pressed states, and low-priority active indicators.
+- **Secondary (`#5D5E61`):** Navigational icons, descriptive subheaders, and contextual units.
+- **Tertiary (`#AAABAE`):** Inactive indicators, trailing hints, and placeholder text.
+- **Background & Surface (`#FFFFFF`):** Base canvas and main interactive modules.
+- **Surface 2 (`#F3F5F7`):** Recessed containers, telemetry backplates, segmented control tracks, and input beds.
+- **Ink (`#181A1C`):** High-prominence typography, balances, and transactional figures.
+- **Ink 2 (`#66686D`):** Standard body copy, timestamps, and secondary balance changes.
+- **Line (`#E2E4E7`):** Hairline borders (1px) for card structures, list dividers, and concentric track rings.
+- **Inverse (`#1C1E20`):** Floating navigation pills, tooltips, and high-impact snackbars.
+
+### Semantic Accents
+- **Success (`#159A49`):** Positive cash flow, completed goals, and income metrics.
+- **Warning (`#C97D00`):** Approaching budget limits, scheduled outflows, and alerts.
+- **Danger (`#D32F34`):** Over-budget notifications, account disconnects, and destructive actions.
+
+## Typography
+
+The typography uses Plus Jakarta Sans to manifest the friendly, modern, and open geometry required by the Breeze aesthetic. Metrics and monetary values favor bold, tight-tracking weights for quick recognition, while supporting labels balance high legibility with subdued hierarchy.
+
+### Rules of Usage
+- **Financial Balance Rules:** Use `display-lg` and `display-md` strictly for top-level wallet and net-worth metrics. Keep decimal segments optically equal or stepped down one level to preserve baseline stability.
+- **Labels & Micro-Copy:** Use `label-sm` set to uppercase with wide letter spacing for category trackers, concentric ring telemetry tags, and table metadata.
+- **Icon Pairing:** Material Symbols Outlined must match optical font sizing (e.g., 20px glyphs with `label-lg` or `body-md`, 24px glyphs with `headline-lg` or `title-md`).
+
+## Layout & Spacing
+
+The layout is built around mobile-first utility, using an edge-to-edge container model bounded by consistent viewport margins. Spatial grouping relies on progressive whitespace stacks rather than heavy panel boundaries.
+
+### Grid & Boundaries
+- **Mobile Foundation:** Single-column modular flow bounded by an outer margin of `1.25rem` (20px). Touch targets maintain an absolute minimum height of 48px.
+- **Gaps & Rhythm:** Inner card components leverage `space-md` (16px) for item grouping, while major contextual sections (e.g., Chart Stack to Transaction Feed) separate via `space-xl` (32px).
+- **Tablet Reflow:** For larger viewports, the layout pins to a 480px max-width centered container to maintain thumb ergonomics, or splits into a two-column balance sheet layout with a 1rem gutter.
+
+## Elevation & Depth
+
+Visual hierarchy rejects layered heavy drop shadows in favor of crisp 1px hairline borders (`#E2E4E7`) paired with ambient, diffused off-surface blurs.
+
+### Elevation Hierarchy
+- **Base Level (Canvas):** Pure `#FFFFFF` flat plane.
+- **Recessed Level:** `#F3F5F7` with no shadow, cut with a 1px border of `#E2E4E7`. Used for segmented tabs, search fields, and metric tracks.
+- **Card Level:** Surface `#FFFFFF` enclosed by a 1px border (`#E2E4E7`) and an ambient glow: `box-shadow: 0 4px 20px -2px rgba(18, 19, 22, 0.04)`.
+- **Floating Overlays & Sheets:** Deep floating pill navbars and sticky actions utilize `#1C1E20` or translucent frosted glass (`rgba(255, 255, 255, 0.85)` with `backdrop-filter: blur(12px)`) supported by `box-shadow: 0 12px 32px -4px rgba(18, 19, 22, 0.08)`.
+
+## Shapes
+
+The interface expresses its soft, consumer-first personality through extreme corner softening. Elements alternate between high-radius organic rectangles and complete rounded pills.
+
+### Geometry Rules
+- **Pills (`rounded-full`):** All interactive buttons, filter chips, category capsules, and bottom floating toolbars use complete 9999px pill radii.
+- **Cards & Data Shields:** Standard overview cards, charts, and modal sheets adopt `rounded-2xl` (1rem / 16px to 1.5rem / 24px) to retain structural alignment without harsh corners.
+- **Concentric Data Rings:** Circular visualizers, budget meters, and transaction progress indicators must be modeled with perfect concentric circular geometry, maintaining equal stroke-to-radius intervals.
+
+## Components
+
+### Buttons
+- **Primary Pill:** Background `#121316`, label `#FFFFFF` (`label-lg`), height 48px, padding 0 24px, radius `rounded-full`. Active scale down to 0.98.
+- **Secondary Pill:** Background `#F1F2F5`, label `#181A1C`, 1px border `#E2E4E7`.
+- **Ghost/Tertiary:** Transparent background, label `#5D5E61`, active state renders `#F3F5F7`.
+
+### Chips & Filters
+- Compact 32px pills. Unselected: `#F3F5F7` background, `#66686D` text. Selected: `#121316` background, `#FFFFFF` text. Icon prefix sized to 16px.
+
+### Cards
+- Container filled with `#FFFFFF`, bounded by 1px border `#E2E4E7`, corners `rounded-2xl`, inner padding `space-lg` (24px).
+- Internal sections are separated by full-width 1px hairline dividers (`#E2E4E7`).
+
+### Concentric Data Rings (Budgets & Spending)
+- Outer tracking rings use stroke width of 8px to 12px.
+- Unfilled background track uses `#F3F5F7`.
+- Primary ring paths use `#121316`, `#159A49`, `#C97D00`, or `#D32F34` with rounded cap terminations (`stroke-linecap: round`).
+- Spacing between nested concentric rings must remain fixed at 4px.
+
+### Lists & Transactions
+- Edge-to-edge content blocks separated by 1px `#E2E4E7` borders (indented to match label text).
+- Left-hand category avatar: 40px circle or `rounded-xl` square in `#F3F5F7`, housing a 20px Material Symbols Outlined glyph in `#181A1C`.
+- Primary title (`title-md`) in `#181A1C`, metadata (`body-md`) in `#66686D`.
+- Right-aligned transactional amount rendered in `title-md` (`#181A1C` for expense, `#159A49` for income).
+
+### Input Fields
+- Height 52px, filled with `#F3F5F7`, 1px hairline border `#E2E4E7`, radius `rounded-xl`.
+- Focus state shifts border to `#121316` with zero focus ring spread. Text in `#181A1C`, placeholder in `#AAABAE`.
+
+### Checkboxes & Toggle Switches
+- Checkbox: 20px box with `rounded-md`, 1.5px border `#AAABAE`, checked background `#121316` displaying white check icon.
+- Switch: 48px x 28px pill track in `#E2E4E7`, active track `#121316`. Thumb is 22px pure `#FFFFFF` circle.

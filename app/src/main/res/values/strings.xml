@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">FinTracker</string>
+    <string name="streak_cd">Spending streak</string>
+    <string name="profile_cd">Profile and settings</string>
+    <string name="add_expense_cd">Add or scan expense</string>
+    <string name="back_cd">Navigate back</string>
+    <string name="notification_listener_label">FinTracker Payment Alert Listener</string>
+</resources>
